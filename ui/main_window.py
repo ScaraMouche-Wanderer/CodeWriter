@@ -1,6 +1,7 @@
 """
 Main application window for CodeTyper.
-Constructs the GTK4 GUI shell with countdown overlay, background typing engine, and STOP button.
+Constructs the GTK4 GUI shell with countdown overlay, background typing engine,
+STOP button, and progress bar.
 """
 
 import gi
@@ -44,6 +45,7 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
         self._build_delay_countdown_row()
         self._build_presets_row()
         self._build_action_row()
+        self._build_progress_row()
         self._build_status_row()
 
     def _build_profile_row(self) -> None:
@@ -123,8 +125,13 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
         self.stop_button.connect("clicked", self._on_stop_clicked)
         self.stop_button.set_visible(False)
         row.append(self.stop_button)
-
         self.main_box.append(row)
+
+    def _build_progress_row(self) -> None:
+        self.progress_bar = Gtk.ProgressBar()
+        self.progress_bar.add_css_class("codetyper-progress")
+        self.progress_bar.set_visible(False)
+        self.main_box.append(self.progress_bar)
 
     def _build_status_row(self) -> None:
         row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
@@ -149,6 +156,7 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
         self.arm_button.set_visible(is_idle)
         self.stop_button.set_sensitive(is_active)
         self.stop_button.set_visible(is_active)
+        self.progress_bar.set_visible(is_active)
 
     def _on_arm_and_type_clicked(self, _button: Gtk.Button) -> None:
         """Initiate countdown prior to typing."""
@@ -157,6 +165,10 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
             return
 
         self._set_state(AppState.COUNTDOWN)
+        self.progress_bar.set_fraction(0.0)
+        self.progress_bar.set_text("0 / 0 characters")
+        self.progress_bar.set_show_text(True)
+
         seconds = int(self.countdown_spin.get_value())
         self.countdown_overlay.start(
             seconds=seconds,
@@ -182,11 +194,24 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
         self.typing_controller.start(
             text=processed,
             delay_ms=delay_ms,
-            on_progress=lambda sent, tot: self.set_status(f"Typing... {sent}/{tot} characters"),
-            on_complete=lambda tot: (self.set_status(f"Typed {tot} characters."), self._set_state(AppState.IDLE)),
+            on_progress=self._update_progress,
+            on_complete=self._on_typing_complete,
             on_cancelled=lambda sent: (self.set_status(f"Stopped at {sent} characters."), self._set_state(AppState.IDLE)),
             on_error=lambda msg: (self.set_status(f"Error: {msg}"), self._set_state(AppState.IDLE)),
         )
+
+    def _update_progress(self, sent: int, total: int) -> None:
+        """Update progress bar and status text during typing."""
+        fraction = sent / total if total > 0 else 0.0
+        self.progress_bar.set_fraction(fraction)
+        self.progress_bar.set_text(f"{sent} / {total} characters")
+        self.progress_bar.set_show_text(True)
+        self.set_status(f"Typing... {sent}/{total} characters")
+
+    def _on_typing_complete(self, total: int) -> None:
+        self.progress_bar.set_fraction(1.0)
+        self.set_status(f"Typed {total} characters.")
+        self._set_state(AppState.IDLE)
 
     def set_status(self, text: str) -> None:
         self.status_label.set_text(f"Status: {text}")
