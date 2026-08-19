@@ -1,6 +1,6 @@
 """
 Main application window for CodeTyper.
-Constructs the GTK4 GUI shell with countdown overlay and state management.
+Constructs the GTK4 GUI shell with countdown overlay, background typing engine, and STOP button.
 """
 
 import gi
@@ -8,13 +8,13 @@ import gi
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
 
-from backend.ydotool import BackendUnavailableError, YdotoolBackend
+from backend.ydotool import YdotoolBackend
 from core.app_state import AppState
 from core.text_processor import preserve, smart
+from core.typing_engine import TypingController
 from ui.countdown import CountdownOverlay
 from ui.editor import CodeEditor
 
-# Preset delay constants (in milliseconds)
 PRESET_FAST_MS = 2
 PRESET_NORMAL_MS = 8
 PRESET_SAFE_MS = 20
@@ -26,18 +26,17 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
     def __init__(self, backend: YdotoolBackend = None, **kwargs) -> None:
         super().__init__(**kwargs)
         self.backend = backend or YdotoolBackend()
+        self.typing_controller = TypingController(self.backend)
         self.state = AppState.IDLE
 
         self.set_title("CodeTyper")
         self.set_default_size(700, 600)
 
-        # Root layout container wrapped in countdown overlay
         self.main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
         self.main_box.add_css_class("main-container")
         self.countdown_overlay = CountdownOverlay(self.main_box)
         self.set_child(self.countdown_overlay)
 
-        # Build UI sections
         self._build_profile_row()
         self.editor = CodeEditor()
         self.main_box.append(self.editor)
@@ -56,7 +55,7 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
         row.append(self.profile_dropdown)
 
         self.save_profile_btn = Gtk.Button(label="Save as Profile")
-        self.save_profile_btn.connect("clicked", self._on_save_profile_clicked)
+        self.save_profile_btn.connect("clicked", lambda _: print("[CodeTyper] Save as Profile — Phase 8"))
         row.append(self.save_profile_btn)
         self.main_box.append(row)
 
@@ -109,12 +108,22 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
     def _build_action_row(self) -> None:
         row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
         row.add_css_class("action-row")
+
         self.arm_button = Gtk.Button(label="ARM & TYPE")
         self.arm_button.set_hexpand(True)
         self.arm_button.add_css_class("suggested-action")
         self.arm_button.add_css_class("arm-button")
         self.arm_button.connect("clicked", self._on_arm_and_type_clicked)
         row.append(self.arm_button)
+
+        self.stop_button = Gtk.Button(label="STOP")
+        self.stop_button.set_hexpand(True)
+        self.stop_button.add_css_class("destructive-action")
+        self.stop_button.add_css_class("stop-button")
+        self.stop_button.connect("clicked", self._on_stop_clicked)
+        self.stop_button.set_visible(False)
+        row.append(self.stop_button)
+
         self.main_box.append(row)
 
     def _build_status_row(self) -> None:
@@ -129,15 +138,17 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
         """Centralized state machine transition updating state and UI sensitivity."""
         self.state = new_state
         is_idle = (new_state == AppState.IDLE)
-        for w in (self.arm_button, self.delay_spin, self.countdown_spin,
-                  self.mode_smart_radio, self.mode_preserve_radio,
-                  self.profile_dropdown, self.save_profile_btn):
-            w.set_sensitive(is_idle)
-        self.editor.get_view().set_editable(is_idle)
+        is_active = (new_state in (AppState.COUNTDOWN, AppState.TYPING))
 
-    def _on_save_profile_clicked(self, _button: Gtk.Button) -> None:
-        """No-op handler for Save as Profile (Phase 8)."""
-        print("[CodeTyper] Save as Profile pressed — profile management is Phase 8")
+        for w in (self.delay_spin, self.countdown_spin, self.mode_smart_radio,
+                  self.mode_preserve_radio, self.profile_dropdown, self.save_profile_btn):
+            w.set_sensitive(is_idle)
+
+        self.editor.get_view().set_editable(is_idle)
+        self.arm_button.set_sensitive(is_idle)
+        self.arm_button.set_visible(is_idle)
+        self.stop_button.set_sensitive(is_active)
+        self.stop_button.set_visible(is_active)
 
     def _on_arm_and_type_clicked(self, _button: Gtk.Button) -> None:
         """Initiate countdown prior to typing."""
@@ -151,32 +162,31 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
             seconds=seconds,
             on_tick=lambda rem: self.set_status(f"Starting in {rem}..."),
             on_complete=self._do_type,
-            on_cancel=self._on_countdown_cancelled,
+            on_cancel=lambda: (self.set_status("Cancelled."), self._set_state(AppState.IDLE)),
         )
 
-    def _on_countdown_cancelled(self) -> None:
-        """Handle user cancellation of countdown."""
-        self.set_status("Cancelled.")
-        self._set_state(AppState.IDLE)
+    def _on_stop_clicked(self, _button: Gtk.Button) -> None:
+        """Unified stop handler routing to countdown or background typing engine."""
+        if self.state == AppState.COUNTDOWN:
+            self.countdown_overlay.cancel()
+        elif self.state == AppState.TYPING:
+            self.typing_controller.cancel()
 
     def _do_type(self) -> None:
-        """
-        Transform text and dispatch typing to backend.
-        NOTE: Temporary direct blocking call; replaced by async chunking in Phase 5.
-        """
+        """Dispatch chunked typing to background TypingController."""
         self._set_state(AppState.TYPING)
         raw_text = self.editor.get_text()
         delay_ms = int(self.delay_spin.get_value())
         processed = smart(raw_text) if self.mode_smart_radio.get_active() else preserve(raw_text)
 
-        try:
-            self.backend.type_text(processed, delay_ms)
-            self.set_status(f"Typed {len(processed)} characters.")
-        except BackendUnavailableError as e:
-            self.set_status(f"Error: {e}")
-        finally:
-            self._set_state(AppState.IDLE)
+        self.typing_controller.start(
+            text=processed,
+            delay_ms=delay_ms,
+            on_progress=lambda sent, tot: self.set_status(f"Typing... {sent}/{tot} characters"),
+            on_complete=lambda tot: (self.set_status(f"Typed {tot} characters."), self._set_state(AppState.IDLE)),
+            on_cancelled=lambda sent: (self.set_status(f"Stopped at {sent} characters."), self._set_state(AppState.IDLE)),
+            on_error=lambda msg: (self.set_status(f"Error: {msg}"), self._set_state(AppState.IDLE)),
+        )
 
     def set_status(self, text: str) -> None:
-        """Update the status label at the bottom of the window."""
         self.status_label.set_text(f"Status: {text}")
