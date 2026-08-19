@@ -4,8 +4,10 @@ CodeTyper — Main Application Entry Point.
 A native Linux utility for simulating typing into active windows via ydotool.
 """
 
+import logging
 import os
 import sys
+import traceback
 
 import gi
 
@@ -14,8 +16,21 @@ gi.require_version("GtkSource", "5")
 from gi.repository import Gdk, Gio, Gtk
 
 from backend.ydotool import YdotoolBackend
+from core.settings import SettingsStore
 from ui.dialogs import BackendErrorDialog
 from ui.main_window import CodeTyperWindow
+
+logger = logging.getLogger("CodeTyper")
+
+
+def _global_exception_handler(exctype, value, tb):
+    """Top-level uncaught exception handler logging to stderr."""
+    err_str = "".join(traceback.format_exception(exctype, value, tb))
+    sys.stderr.write(f"\n[CodeTyper FATAL ERROR]\n{err_str}\n")
+    sys.stderr.flush()
+
+
+sys.excepthook = _global_exception_handler
 
 
 class CodeTyperApp(Gtk.Application):
@@ -27,6 +42,7 @@ class CodeTyperApp(Gtk.Application):
             flags=Gio.ApplicationFlags.DEFAULT_FLAGS,
         )
         self.backend = YdotoolBackend()
+        self.settings_store = SettingsStore()
         self.window = None
         self.error_dialog = None
 
@@ -45,9 +61,15 @@ class CodeTyperApp(Gtk.Application):
         self._show_main_window()
 
     def _show_main_window(self) -> None:
-        """Instantiate and present the main CodeTyper window."""
+        """Instantiate and present the main CodeTyper window with saved settings."""
         if not self.window:
-            self.window = CodeTyperWindow(application=self, backend=self.backend)
+            settings = self.settings_store.load()
+            self.window = CodeTyperWindow(
+                application=self,
+                backend=self.backend,
+                settings_store=self.settings_store,
+                initial_settings=settings,
+            )
         self.window.present()
 
     def _show_error_dialog(self, reason: str) -> None:

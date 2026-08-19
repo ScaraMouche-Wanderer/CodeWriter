@@ -7,11 +7,13 @@ STOP button, progress bar, profile persistence, and recent snippets history.
 import gi
 
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk
+gi.require_version("Gdk", "4.0")
+from gi.repository import Gdk, Gtk
 
 from backend.ydotool import YdotoolBackend
 from core.app_state import AppState
 from core.profiles import ProfileStore
+from core.settings import SettingsStore
 from core.snippets import SnippetStore
 from core.text_processor import preserve, smart
 from core.typing_engine import TypingController
@@ -25,29 +27,34 @@ PRESET_FAST_MS, PRESET_NORMAL_MS, PRESET_SAFE_MS = 2, 8, 20
 class CodeTyperWindow(Gtk.ApplicationWindow):
     """Main window for CodeTyper."""
 
-    def __init__(self, backend: YdotoolBackend = None, **kwargs) -> None:
+    def __init__(self, backend: YdotoolBackend = None, settings_store: SettingsStore = None,
+                 initial_settings: dict = None, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.backend = backend or YdotoolBackend()
+        self.backend, self.settings_store = backend or YdotoolBackend(), settings_store or SettingsStore()
         self.typing_controller = TypingController(self.backend)
         self.profile_store, self.snippet_store = ProfileStore(), SnippetStore()
-        self._profiles = self.profile_store.load()
-        self._recent_snippets = self.snippet_store.load()
+        self._profiles, self._recent_snippets = self.profile_store.load(), self.snippet_store.load()
         self.state = AppState.IDLE
 
+        settings = initial_settings or self.settings_store.load()
         self.set_title("CodeTyper")
-        self.set_default_size(700, 600)
+        self.set_default_size(settings.get("window_width", 700), settings.get("window_height", 600))
 
         self.main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8, css_classes=["main-container"])
         self.countdown_overlay = CountdownOverlay(self.main_box)
         self.set_child(self.countdown_overlay)
 
         self._build_ui()
-        self._populate_profiles_dropdown()
+        self._populate_profiles_dropdown(selected_name=settings.get("last_selected_profile", "Default"))
         self._refresh_recent_snippets()
         self.profile_dropdown.connect("notify::selected", self._on_profile_selected)
+        self.connect("close-request", self._on_close_request)
+
+        key_ctrl = Gtk.EventControllerKey()
+        key_ctrl.connect("key-pressed", lambda _, k, _c, _s: self._on_stop_clicked(self.stop_button) or True if k == Gdk.KEY_Escape else False)
+        self.add_controller(key_ctrl)
 
     def _build_ui(self) -> None:
-        # Profile & Editor & Snippets
         p_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10, css_classes=["profile-row"])
         self.profile_dropdown = Gtk.DropDown(hexpand=True)
         self.save_profile_btn = Gtk.Button(label="Save as Profile")
@@ -61,7 +68,6 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
         self.recent_listbox.connect("row-activated", self._on_recent_row_activated)
         self.recent_expander.set_child(Gtk.ScrolledWindow(child=self.recent_listbox, css_classes=["recent-scroll"], min_content_height=70))
 
-        # Mode & Delay rows
         m_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12, css_classes=["mode-row"])
         self.mode_smart_radio = Gtk.CheckButton(label="Smart", active=True)
         self.mode_preserve_radio = Gtk.CheckButton(label="Preserve", group=self.mode_smart_radio)
@@ -71,12 +77,10 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
         d_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=12, css_classes=["delay-row"])
         self.delay_spin = Gtk.SpinButton(adjustment=Gtk.Adjustment.new(5.0, 0.0, 200.0, 1.0, 5.0, 0.0), digits=0)
         self.countdown_spin = Gtk.SpinButton(adjustment=Gtk.Adjustment.new(3.0, 0.0, 10.0, 1.0, 1.0, 0.0), digits=0)
-        for w in (Gtk.Label(label="Delay:"), self.delay_spin, Gtk.Label(label="ms"),
-                  Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True),
+        for w in (Gtk.Label(label="Delay:"), self.delay_spin, Gtk.Label(label="ms"), Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True),
                   Gtk.Label(label="Countdown:"), self.countdown_spin, Gtk.Label(label="sec")):
             d_row.append(w)
 
-        # Presets, Action, Progress, Status
         pr_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8, css_classes=["preset-row"])
         pr_row.append(Gtk.Label(label="Presets:"))
         for lbl, val in [("Fast", PRESET_FAST_MS), ("Normal", PRESET_NORMAL_MS), ("Safe", PRESET_SAFE_MS)]:
@@ -117,8 +121,7 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
             self.recent_listbox.append(row)
 
     def _on_recent_row_activated(self, _listbox: Gtk.ListBox, row: Gtk.ListBoxRow) -> None:
-        idx = row.get_index()
-        if idx < 0 or idx >= len(self._recent_snippets):
+        if (idx := row.get_index()) < 0 or idx >= len(self._recent_snippets):
             return
         snip = self._recent_snippets[idx]
         cur_text = self.editor.get_text()
@@ -130,8 +133,7 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
             self.editor.set_text(snip["content"])
 
     def _on_profile_selected(self, dropdown: Gtk.DropDown, _pspec) -> None:
-        idx = dropdown.get_selected()
-        if idx == Gtk.INVALID_LIST_POSITION or idx >= len(self._profiles):
+        if (idx := dropdown.get_selected()) == Gtk.INVALID_LIST_POSITION or idx >= len(self._profiles):
             return
         p = self._profiles[idx]
         self.delay_spin.set_value(float(p.get("delay_ms", 5)))
@@ -148,8 +150,7 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
                 self._profiles = self.profile_store.upsert({
                     "name": name, "target": "", "language": "",
                     "mode": "smart" if self.mode_smart_radio.get_active() else "preserve",
-                    "delay_ms": int(self.delay_spin.get_value()),
-                    "countdown_sec": int(self.countdown_spin.get_value()),
+                    "delay_ms": int(self.delay_spin.get_value()), "countdown_sec": int(self.countdown_spin.get_value()),
                 })
                 self._populate_profiles_dropdown(selected_name=name)
             d.close()
@@ -157,10 +158,15 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
         dlg.connect("response", _resp)
         dlg.present()
 
+    def _on_close_request(self, _win) -> bool:
+        idx = self.profile_dropdown.get_selected()
+        prof_name = self._profiles[idx]["name"] if idx < len(self._profiles) else "Default"
+        self.settings_store.save({"window_width": self.get_width() or 700, "window_height": self.get_height() or 600, "last_selected_profile": prof_name})
+        return False
+
     def _set_state(self, new_state: AppState) -> None:
         self.state = new_state
-        is_idle = (new_state == AppState.IDLE)
-        is_active = (new_state in (AppState.COUNTDOWN, AppState.TYPING))
+        is_idle, is_active = (new_state == AppState.IDLE), (new_state in (AppState.COUNTDOWN, AppState.TYPING))
         for w in (self.delay_spin, self.countdown_spin, self.mode_smart_radio,
                   self.mode_preserve_radio, self.profile_dropdown, self.save_profile_btn, self.recent_expander):
             w.set_sensitive(is_idle)
