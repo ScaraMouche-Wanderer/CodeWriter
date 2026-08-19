@@ -1,6 +1,6 @@
 """
 Dialog components for CodeTyper.
-Includes BackendErrorDialog and ProfileNameDialog.
+Includes BackendErrorDialog, ProfileNameDialog, and ConfirmReplaceDialog.
 """
 
 from typing import Optional
@@ -70,3 +70,22 @@ class ProfileNameDialog(Gtk.Dialog):
     def get_profile_name(self) -> str:
         """Return the trimmed profile name from the entry."""
         return self.entry.get_text().strip()
+
+
+class ConfirmReplaceDialog(Gtk.MessageDialog):
+    """
+    Confirmation dialog when loading a recent snippet into an editor with existing content.
+    """
+
+    def __init__(self, parent: Optional[Gtk.Window] = None) -> None:
+        super().__init__(
+            transient_for=parent,
+            modal=True,
+            message_type=Gtk.MessageType.QUESTION,
+            buttons=Gtk.ButtonsType.NONE,
+            text="Replace Editor Content?",
+            secondary_text="The editor currently contains unsaved text. Replace it with the selected snippet?",
+        )
+        self.add_button("Cancel", Gtk.ResponseType.CANCEL)
+        self.add_button("Replace", Gtk.ResponseType.OK)
+        self.set_default_response(Gtk.ResponseType.OK)
