@@ -51,7 +51,7 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
         self.connect("close-request", self._on_close_request)
 
         key_ctrl = Gtk.EventControllerKey()
-        key_ctrl.connect("key-pressed", lambda _, k, _c, _s: self._on_stop_clicked(self.stop_button) or True if k == Gdk.KEY_Escape else False)
+        key_ctrl.connect("key-pressed", self._on_key_pressed)
         self.add_controller(key_ctrl)
 
     def _build_ui(self) -> None:
@@ -162,6 +162,12 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
         idx = self.profile_dropdown.get_selected()
         prof_name = self._profiles[idx]["name"] if idx < len(self._profiles) else "Default"
         self.settings_store.save({"window_width": self.get_width() or 700, "window_height": self.get_height() or 600, "last_selected_profile": prof_name})
+        return False
+
+    def _on_key_pressed(self, _ctrl, keyval: int, _keycode: int, _state) -> bool:
+        if keyval == Gdk.KEY_Escape:
+            self._on_stop_clicked(self.stop_button)
+            return True
         return False
 
     def _set_state(self, new_state: AppState) -> None:

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=CodeTyper
+Comment=Type code into any focused application via simulated keystrokes
+Exec=python3 /home/voidnode/Work/CodeWriter/app.py
+Icon=/home/voidnode/Work/CodeWriter/resources/icons/codetyper.svg
+Terminal=false
+Categories=Utility;Development;
+StartupNotify=true

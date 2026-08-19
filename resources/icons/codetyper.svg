@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+    <linearGradient id="keyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Background App Tile -->
+  <rect x="8" y="8" width="112" height="112" rx="26" fill="url(#bgGrad)" stroke="#334155" stroke-width="2" filter="url(#dropShadow)" />
+
+  <!-- Code Prompt Symbol >_ -->
+  <path d="M 28 36 L 46 50 L 28 64" fill="none" stroke="url(#accentGrad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  <line x1="54" y1="64" x2="72" y2="64" stroke="#38bdf8" stroke-width="6" stroke-linecap="round" />
+
+  <!-- Simulated Keycaps Row -->
+  <rect x="26" y="80" width="16" height="14" rx="4" fill="url(#keyGrad)" stroke="#475569" stroke-width="1.5" />
+  <rect x="46" y="80" width="16" height="14" rx="4" fill="url(#keyGrad)" stroke="#475569" stroke-width="1.5" />
+  <rect x="66" y="80" width="16" height="14" rx="4" fill="url(#keyGrad)" stroke="#475569" stroke-width="1.5" />
+  <rect x="86" y="80" width="16" height="14" rx="4" fill="url(#accentGrad)" stroke="#60a5fa" stroke-width="1.5" />
+</svg>
