@@ -1,0 +1,53 @@
+/* CodeTyper Custom Styling */
+
+.code-editor-view {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Source Code Pro', monospace;
+    font-size: 13px;
+    padding: 8px;
+}
+
+.main-container {
+    padding: 12px;
+}
+
+.profile-row {
+    margin-bottom: 8px;
+}
+
+.editor-container {
+    margin-top: 4px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+}
+
+.mode-row {
+    margin-top: 8px;
+    margin-bottom: 6px;
+}
+
+.delay-row {
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
+.preset-row {
+    margin-top: 6px;
+    margin-bottom: 10px;
+}
+
+.action-row {
+    margin-top: 4px;
+    margin-bottom: 10px;
+}
+
+.arm-button {
+    font-weight: bold;
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.status-row {
+    margin-top: 4px;
+    font-size: 12px;
+    opacity: 0.85;
+}
