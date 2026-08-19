@@ -7,6 +7,7 @@ import os
 import shutil
 import socket
 import subprocess
+import time
 
 
 class BackendUnavailableError(Exception):
@@ -63,6 +64,32 @@ class YdotoolBackend:
             )
 
         return True, ""
+
+    def ensure_daemon(self) -> tuple[bool, str]:
+        """
+        Ensures ydotoold daemon is running, attempting to start it automatically if not active.
+        """
+        ok, _ = self.is_available()
+        if ok:
+            return True, ""
+
+        if shutil.which("ydotoold"):
+            try:
+                subprocess.Popen(
+                    ["ydotoold"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    start_new_session=True,
+                )
+                for _ in range(8):
+                    time.sleep(0.1)
+                    ready, _ = self.is_available()
+                    if ready:
+                        return True, ""
+            except Exception:
+                pass
+
+        return self.is_available()
 
     def type_text(self, text: str, delay_ms: int) -> None:
         """

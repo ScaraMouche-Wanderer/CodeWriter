@@ -52,8 +52,8 @@ class CodeTyperApp(Gtk.Application):
         self._load_css()
 
     def do_activate(self) -> None:
-        """Called on application activation; runs health check before showing window."""
-        is_ok, reason = self.backend.is_available()
+        """Called on application activation; ensures daemon is running before showing window."""
+        is_ok, reason = self.backend.ensure_daemon()
         if not is_ok:
             self._show_error_dialog(reason)
             return
@@ -86,7 +86,7 @@ class CodeTyperApp(Gtk.Application):
     def _on_dialog_response(self, dialog: Gtk.Dialog, response_id: int) -> None:
         """Handle Retry and Quit responses from the error dialog."""
         if response_id == Gtk.ResponseType.APPLY:  # Retry
-            is_ok, reason = self.backend.is_available()
+            is_ok, reason = self.backend.ensure_daemon()
             if is_ok:
                 dialog.close()
                 self.error_dialog = None
