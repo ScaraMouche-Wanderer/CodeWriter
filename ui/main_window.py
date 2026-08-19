@@ -8,7 +8,7 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Gdk", "4.0")
-from gi.repository import Gdk, Gtk
+from gi.repository import Gdk, GLib, Gtk
 
 from backend.ydotool import YdotoolBackend
 from core.app_state import AppState
@@ -217,7 +217,7 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
             text=processed,
             delay_ms=int(self.delay_spin.get_value()),
             on_progress=self._update_progress,
-            on_complete=lambda tot: (self.progress_bar.set_fraction(1.0), self.set_status(f"Typed {tot} characters."), self._set_state(AppState.IDLE)),
+            on_complete=self._on_typing_complete,
             on_cancelled=lambda sent: (self.set_status(f"Stopped at {sent} characters."), self._set_state(AppState.IDLE)),
             on_error=lambda msg: (self.set_status(f"Error: {msg}"), self._set_state(AppState.IDLE)),
         )
@@ -228,6 +228,12 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
         self.progress_bar.set_text(f"{sent} / {total} characters")
         self.progress_bar.set_show_text(True)
         self.set_status(f"Typing... {sent}/{total} characters")
+
+    def _on_typing_complete(self, total: int) -> None:
+        self.progress_bar.set_fraction(1.0)
+        self.progress_bar.set_text(f"{total} / {total} characters")
+        self.set_status(f"Typed {total} characters.")
+        GLib.timeout_add(150, lambda: (self._set_state(AppState.IDLE), False)[1])
 
     def set_status(self, text: str) -> None:
         self.status_label.set_text(f"Status: {text}")
