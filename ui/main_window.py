@@ -8,6 +8,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
 
+from backend.ydotool import BackendUnavailableError, YdotoolBackend
 from ui.editor import CodeEditor
 
 # Preset delay constants (in milliseconds)
@@ -19,8 +20,10 @@ PRESET_SAFE_MS = 20
 class CodeTyperWindow(Gtk.ApplicationWindow):
     """Main window for CodeTyper."""
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, backend: YdotoolBackend = None, **kwargs) -> None:
         super().__init__(**kwargs)
+        self.backend = backend or YdotoolBackend()
+
         self.set_title("CodeTyper")
         self.set_default_size(700, 600)
 
@@ -171,8 +174,22 @@ class CodeTyperWindow(Gtk.ApplicationWindow):
         print("[CodeTyper] Save as Profile pressed — profile management is Phase 8")
 
     def _on_arm_and_type_clicked(self, _button: Gtk.Button) -> None:
-        """No-op handler for ARM & TYPE (Phase 4/5)."""
-        print("[CodeTyper] ARM & TYPE pressed — not yet implemented (Phase 4/5)")
+        """
+        Temporary direct blocking invocation for Phase 2 verification;
+        replaced by the non-blocking chunked engine in Phase 5.
+        """
+        text = self.editor.get_text()
+        delay_ms = int(self.delay_spin.get_value())
+
+        if not text:
+            self.set_status("Editor is empty — nothing to type.")
+            return
+
+        try:
+            self.backend.type_text(text, delay_ms)
+            self.set_status(f"Typed {len(text)} characters.")
+        except BackendUnavailableError as e:
+            self.set_status(f"Error: {e}")
 
     def set_status(self, text: str) -> None:
         """Update the status label at the bottom of the window."""
