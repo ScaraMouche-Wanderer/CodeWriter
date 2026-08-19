@@ -5,6 +5,7 @@ Provides binary and daemon health checks and character-by-character text typing.
 
 import os
 import shutil
+import socket
 import subprocess
 
 
@@ -21,39 +22,43 @@ class YdotoolBackend:
         """
         Returns (True, "") if ydotool binary exists AND ydotoold is reachable.
         Returns (False, reason) otherwise, where reason explains what's wrong.
+        Performs socket validation with zero observable side-effects (no mouse move).
         """
         # 1. Check if ydotool binary exists in PATH
         binary_path = shutil.which("ydotool")
         if not binary_path:
             return False, "ydotool is not installed or not in PATH."
 
-        # 2. Check if ydotoold daemon is reachable and responding
-        try:
-            res = subprocess.run(
-                ["ydotool", "mousemove", "--", "0", "0"],
-                capture_output=True,
-                text=True,
-                timeout=1.5,
-            )
-            if res.returncode != 0:
-                err = res.stderr.strip() if res.stderr else f"exit code {res.returncode}"
-                return (
-                    False,
-                    f"ydotoold is not running or socket is inaccessible ({err}).\n"
-                    "Start it with: ydotoold &",
-                )
-        except subprocess.TimeoutExpired:
+        # 2. Check if ydotoold daemon socket exists and is reachable
+        socket_candidates = [
+            os.environ.get("YDOTOOL_SOCKET"),
+            f"/run/user/{os.getuid()}/.ydotool_socket",
+            "/tmp/.ydotool_socket",
+            "/run/ydotoold/ydotoold.socket",
+        ]
+        socket_found = None
+        for path in socket_candidates:
+            if path and os.path.exists(path):
+                socket_found = path
+                break
+
+        if not socket_found:
             return (
                 False,
-                "ydotoold check timed out.\n"
-                "Ensure ydotoold is running and responsive (ydotoold &).",
+                "ydotoold is not running or socket is inaccessible.\n"
+                "Start it with: ydotoold &",
             )
-        except FileNotFoundError:
-            return False, "ydotool is not installed or not in PATH."
+
+        # Passive UNIX domain socket check with zero input side-effects
+        try:
+            sock = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+            sock.settimeout(1.0)
+            sock.connect(socket_found)
+            sock.close()
         except Exception as e:
             return (
                 False,
-                f"Failed to communicate with ydotoold ({e}).\n"
+                f"ydotoold socket at {socket_found} is unreachable ({e}).\n"
                 "Start it with: ydotoold &",
             )
 
