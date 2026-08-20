@@ -363,7 +363,8 @@ class CodeWriterTray:
                 child_variants.append(GLib.Variant("(ia{sv}av)", (cid, cprops, [])))
             root_props = {"children-display": GLib.Variant("s", "submenu")}
             layout_variant = GLib.Variant("(ia{sv}av)", (0, root_props, child_variants))
-            invocation.return_value(GLib.Variant("(u(ia{sv}av))", (self.menu_revision, layout_variant)))
+            invocation.return_value(GLib.Variant.new_tuple(GLib.Variant.new_uint32(self.menu_revision), layout_variant))
+
 
         elif method_name == "GetGroupProperties":
             ids, property_names = parameters.unpack()

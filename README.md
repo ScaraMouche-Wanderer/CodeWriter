@@ -17,6 +17,10 @@
 **Paste disabled? Remote VM? Locked web console? Interview environment?**<br/>
 CodeWriter streams your code directly into any window as native hardware keystrokes via `ydotool`.
 
+<br/>
+
+<img src="docs/assets/codewriter_demo.gif" width="640" alt="CodeWriter Live Simulation Visualizer Demo" />
+
 </div>
 
 ---
@@ -42,6 +46,22 @@ python3 app.py
  │  Paste/Format  │                      │    Target Win   │                         │  Types at Your Cursor │
  └────────────────┘                      └─────────────────┘                         └───────────────────────┘
 ```
+
+---
+
+## 📸 Interface Showcase
+
+<div align="center">
+
+### 📝 Multi-Tab Code Editor & Formatter
+<img src="docs/assets/codewriter_main.png" width="700" alt="CodeWriter Main Editor Interface" />
+
+<br/><br/>
+
+### ⚙️ Comprehensive Preferences Modal
+<img src="docs/assets/codewriter_preferences.png" width="540" alt="CodeWriter Preferences Modal" />
+
+</div>
 
 ---
 
