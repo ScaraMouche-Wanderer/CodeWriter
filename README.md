@@ -156,21 +156,22 @@ python3 app.py
 CodeWriter is built with a modular, decoupled architecture:
 
 ```mermaid
-graph TD
-    UI[GTK4 GUI Shell & Multi-Tab Editor] --> Engine[Typing Engine Controller]
-    UI --> Visualizer[Live Simulation Player]
-    UI --> Tools[Code Tools & Beautifiers]
-    UI --> Tray[Pure DBus StatusNotifierItem]
+flowchart TD
+    UI["GTK4 GUI Shell & Multi-Tab Editor"] --> Engine["Typing Engine Controller"]
+    UI --> Visualizer["Live Simulation Player"]
+    UI --> Tools["Code Tools & Beautifiers"]
+    UI --> Tray["Pure DBus StatusNotifierItem"]
     
-    Tools --> Formatters[JSON / SQL / HTML / Base64 / AI Cleaner]
-    Engine --> Humanizer[Cadence Jitter & Typo Engine]
-    Engine --> TextProc[Auto-Indent & Bracket Compensator]
+    Tools --> Formatters["JSON / SQL / HTML / Base64 / AI Cleaner"]
+    Engine --> Humanizer["Cadence Jitter & Typo Engine"]
+    Engine --> TextProc["Auto-Indent & Bracket Compensator"]
     
-    Engine --> Backend[Ydotool Backend]
-    Backend --> Daemon[ydotoold Service]
-    Daemon --> Kernel[/dev/uinput Kernel Module]
-    Kernel --> Target[Target Window / Web IDE / Remote VM]
+    Engine --> Backend["Ydotool Backend"]
+    Backend --> Daemon["ydotoold Service"]
+    Daemon --> Kernel["/dev/uinput Kernel Module"]
+    Kernel --> Target["Target Window / Web IDE / Remote VM"]
 ```
+
 
 ---
 
