@@ -134,3 +134,33 @@ SELECT * FROM users /* active only */ WHERE status = 'active';
     assert "active only" not in stripped
     assert "SELECT * FROM users  WHERE status = 'active';" in stripped
 
+
+def test_escape_and_unescape_string():
+    from core.code_tools import escape_string, unescape_string
+    text = 'Line 1\nLine 2\t"quoted"'
+    escaped = escape_string(text)
+    assert "\\n" in escaped
+    assert "\\t" in escaped
+    assert '\\"' in escaped
+
+    unescaped = unescape_string(escaped)
+    assert unescaped == text
+
+
+def test_change_case_constant():
+    from core.code_tools import change_case
+    assert change_case("max_buffer_size", "constant") == "MAX_BUFFER_SIZE"
+    assert change_case("userFirstName", "constant") == "USER_FIRST_NAME"
+
+
+def test_analyze_code_stats():
+    from core.code_tools import analyze_code_stats
+    code = "def hello():\n    print('world')\n"
+    stats = analyze_code_stats(code, delay_ms=8.0)
+    assert stats["lines"] == 2
+    assert stats["chars"] > 10
+    assert stats["words"] == 3
+    assert stats["est_seconds"] > 0
+    assert stats["complexity"] != "Empty"
+
+

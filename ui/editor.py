@@ -349,16 +349,27 @@ class CodeEditor(Gtk.ScrolledWindow):
         return None
 
     def get_stats(self) -> dict:
-        """Return buffer metrics (lines, characters, and selected characters)."""
+        """Return buffer metrics (lines, characters, words, cursor position, and selected characters)."""
         full_text = self.get_text()
         lines = self.buffer.get_line_count()
         chars = len(full_text)
+        words = len(full_text.split()) if chars > 0 else 0
         sel = self.get_selected_text()
+
+        insert_mark = self.buffer.get_insert()
+        cursor_iter = self.buffer.get_iter_at_mark(insert_mark)
+        cursor_line = cursor_iter.get_line() + 1
+        cursor_col = cursor_iter.get_line_offset() + 1
+
         return {
             "lines": lines if chars > 0 else 0,
             "chars": chars,
+            "words": words,
+            "cursor_line": cursor_line,
+            "cursor_col": cursor_col,
             "selected_chars": len(sel) if sel else 0,
         }
+
 
     def set_language(self, lang_id: str) -> None:
         """Apply syntax highlighting for the given language ID."""

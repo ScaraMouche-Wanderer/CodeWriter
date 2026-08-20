@@ -133,6 +133,10 @@ def change_case(text: str, target: str) -> str:
         return "_".join(words)
     elif target == "kebab":
         return "-".join(words)
+    elif target == "constant":
+        return "_".join(w.upper() for w in words)
+    return text
+
 
 def strip_comments_and_docstrings(text: str, lang_id: str = "plain") -> str:
     """
@@ -445,4 +449,84 @@ def decode_url(text: str) -> str:
     """Decode percent-encoded URL string."""
     import urllib.parse
     return urllib.parse.unquote(text)
+
+
+def escape_string(text: str) -> str:
+    """Escape special characters (newlines, tabs, quotes, backslashes) for embedding into string literals."""
+    if not text:
+        return ""
+    return (
+        text.replace("\\", "\\\\")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t")
+        .replace('"', '\\"')
+    )
+
+
+def unescape_string(text: str) -> str:
+    """Unescape escaped string literals (e.g. \\n -> newline, \\t -> tab, \\\" -> \")."""
+    if not text:
+        return ""
+    try:
+        # Use unicode_escape decode or manual replacement
+        return (
+            text.replace('\\"', '"')
+            .replace("\\'", "'")
+            .replace("\\n", "\n")
+            .replace("\\t", "\t")
+            .replace("\\r", "\r")
+            .replace("\\\\", "\\")
+        )
+    except Exception:
+        return text
+
+
+def analyze_code_stats(text: str, delay_ms: float = 8.0) -> dict:
+    """
+    Compute comprehensive code and typing telemetry metrics:
+    - lines, chars, non-whitespace chars, words
+    - estimated transmission duration (sec)
+    - estimated effective WPM
+    - syntax density rating
+    """
+    if not text:
+        return {
+            "lines": 0,
+            "chars": 0,
+            "words": 0,
+            "non_ws_chars": 0,
+            "est_seconds": 0.0,
+            "est_wpm": 0,
+            "complexity": "Empty",
+        }
+
+    lines = len(text.splitlines()) or (1 if text else 0)
+    chars = len(text)
+    words = len(text.split())
+    non_ws = sum(1 for c in text if not c.isspace())
+
+    # Duration calculation including delimiter pauses
+    from core.humanizer import estimate_typing_duration
+    est_sec, est_wpm = estimate_typing_duration(text, base_delay_ms=delay_ms, enable_humanize=True)
+
+    density_ratio = non_ws / max(1, chars)
+
+    if density_ratio > 0.8:
+        complexity = "Dense / High"
+    elif density_ratio > 0.6:
+        complexity = "Standard"
+    else:
+        complexity = "Light / Sparse"
+
+    return {
+        "lines": lines,
+        "chars": chars,
+        "words": words,
+        "non_ws_chars": non_ws,
+        "est_seconds": round(est_sec, 2),
+        "est_wpm": est_wpm,
+        "complexity": complexity,
+    }
+
 

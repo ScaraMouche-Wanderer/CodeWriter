@@ -9,7 +9,8 @@
 [![Platform](https://img.shields.io/badge/Platform-Linux%20(Wayland%20%7C%20X11)-0066cc?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/ScaraMouche-Wanderer/CodeWriter)
 [![GUI](https://img.shields.io/badge/GUI-GTK4%20%2B%20GtkSourceView%205-0077ed?style=for-the-badge&logo=gnome&logoColor=white)](https://github.com/ScaraMouche-Wanderer/CodeWriter)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://github.com/ScaraMouche-Wanderer/CodeWriter)
-[![Tests](https://img.shields.io/badge/Tests-98%20Passed%20(100%25)-34c759?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/ScaraMouche-Wanderer/CodeWriter)
+[![Tests](https://img.shields.io/badge/Tests-101%20Passed%20(100%25)-34c759?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/ScaraMouche-Wanderer/CodeWriter)
+
 [![License](https://img.shields.io/badge/License-MIT-ff9500?style=for-the-badge)](LICENSE)
 
 <br/>
@@ -107,16 +108,21 @@ python3 app.py
 - **JSON Formatter & Minifier**: Pretty-prints formatted JSON with indentation or compresses into single-line payload.
 - **SQL Query Beautifier**: Capitalizes SQL keywords (`SELECT`, `FROM`, `WHERE`, `JOIN`, `ORDER BY`, `LIMIT`) and formats clause indentations.
 - **HTML / XML Formatter**: Rebuilds tag hierarchies with proper nesting and void tag handling.
+- **Case Converters**: Convert variables instantly to `camelCase`, `snake_case`, `PascalCase`, or `CONSTANT_CASE`.
+- **String Literals & Escaper**: Escapes and unescapes quotes, newlines, and tabs (`\"`, `\n`, `\t`, `\\`) for string literals.
+- **Line Manipulations & Sorting**: Remove blank lines, deduplicate unique lines, and sort lines ascending (`A → Z`) or descending (`Z → A`).
 - **Data Encoders**: Instant Base64 encode/decode and URL percent encode/decode.
 - **AI Markdown Extractor (`Ctrl+M`)**: Automatically strips conversational text, headers, and ````language code fences from ChatGPT, Claude, Gemini, or DeepSeek pastes.
 - **Stealth Cleaning**: Strip comments (`//`, `#`, `--`, `/* */`), docstrings, and compensate for online IDE bracket auto-closing.
 
-### 📝 Multi-Tab Editor & Ergonomic Controls
+### 📝 Multi-Tab Editor, Telemetry & Ergonomic Controls
+- **Live Telemetry Pill Bar**: Real-time status badge (`🟢 READY` / `⚡ STREAMING` / `⏸ PAUSED`), line/char/word metrics, estimated typing transmission duration (`~2.4s`), cursor position (`Ln X, Col Y`), and encoding pill.
 - **Multi-Tab Architecture**: Open up to 8 concurrent editor tabs with syntax highlighting for **22 programming languages**.
 - **Font Zooming**: Live zoom in (`Ctrl++`), zoom out (`Ctrl+-`), and reset (`Ctrl+0`).
 - **Line Manipulations**: Duplicate lines (`Ctrl+Shift+D`), delete lines (`Ctrl+Shift+K`), and move lines up/down (`Alt+Up` / `Alt+Down`).
 - **Soft Word Wrap**: Toggle soft wrapping with `Alt+Z`.
 - **Starter Templates**: Fast I/O algorithms and starter boilerplates for Python, C++, Java, Rust, Go, and Bash.
+
 
 ### 🎛 Desktop & Tray Integration
 - **Pure DBus System Tray**: Zero GTK3 dependencies; registers `StatusNotifierItem` and `DBusMenu` directly over Session DBus.

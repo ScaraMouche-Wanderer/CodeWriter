@@ -11,7 +11,15 @@ def test_code_editor_initial_state() -> None:
     editor = CodeEditor()
     assert editor.get_text() == ""
     assert editor.get_selected_text() is None
-    assert editor.get_stats() == {"lines": 0, "chars": 0, "selected_chars": 0}
+    assert editor.get_stats() == {
+        "lines": 0,
+        "chars": 0,
+        "words": 0,
+        "cursor_line": 1,
+        "cursor_col": 1,
+        "selected_chars": 0,
+    }
+
 
 
 def test_code_editor_set_text_and_stats() -> None:

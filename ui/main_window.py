@@ -30,6 +30,7 @@ from gi.repository import Gdk, Gio, GLib, Gtk, Pango
 from backend.ydotool import YdotoolBackend
 from core.app_state import AppState
 from core.code_tools import (
+    analyze_code_stats,
     change_case,
     convert_spaces_to_tabs,
     convert_tabs_to_spaces,
@@ -38,6 +39,7 @@ from core.code_tools import (
     deduplicate_lines,
     encode_base64,
     encode_url,
+    escape_string,
     extract_markdown_code,
     format_html,
     format_json,
@@ -47,7 +49,9 @@ from core.code_tools import (
     sort_lines,
     strip_comments_and_docstrings,
     trim_trailing_whitespace,
+    unescape_string,
 )
+
 from core.humanizer import estimate_typing_duration
 from core.profiles import ProfileStore
 from core.session_log import SessionLogStore
@@ -445,13 +449,32 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
         # ── 7. Progress Bar ──
         self.progress_bar = Gtk.ProgressBar(visible=False, css_classes=["codewriter-progress", "codetyper-progress"])
 
-        # ── 8. Unified Status & Stats Footer ──
-        footer_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8, css_classes=["status-footer-row"])
-        self.status_label = Gtk.Label(label="Status: Ready", halign=Gtk.Align.START, hexpand=True, css_classes=["status-label"])
+        # ── 8. Unified Status & Telemetry Footer ──
+        footer_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6, css_classes=["status-footer-row"])
+
+        self.status_pill = Gtk.Label(label="● Ready", halign=Gtk.Align.START, css_classes=["status-pill-ready", "telemetry-pill"])
+        self.status_label = Gtk.Label(label="Ready to stream", halign=Gtk.Align.START, hexpand=True, css_classes=["status-label"])
         self.status_label.set_ellipsize(Pango.EllipsizeMode.END)
-        self.stats_label = Gtk.Label(label="0 lines · 0 chars", halign=Gtk.Align.END, css_classes=["stats-pill"])
+
+        footer_row.append(self.status_pill)
         footer_row.append(self.status_label)
-        footer_row.append(self.stats_label)
+
+        self.est_time_pill = Gtk.Label(label="~0.0s", css_classes=["telemetry-pill", "telemetry-pill-time"])
+        self.est_time_pill.set_tooltip_text("Estimated Transmission Duration")
+
+        self.stats_pill = Gtk.Label(label="0 lines · 0 chars", css_classes=["telemetry-pill", "telemetry-pill-stats"])
+        self.stats_label = self.stats_pill  # Backward compatibility alias
+
+        self.cursor_pill = Gtk.Label(label="Ln 1, Col 1", css_classes=["telemetry-pill", "telemetry-pill-cursor"])
+        self.cursor_pill.set_tooltip_text("Cursor Position (Line, Column)")
+
+        self.encoding_pill = Gtk.Label(label="UTF-8", css_classes=["telemetry-pill", "telemetry-pill-dim"])
+
+        footer_row.append(self.est_time_pill)
+        footer_row.append(self.stats_pill)
+        footer_row.append(self.cursor_pill)
+        footer_row.append(self.encoding_pill)
+
 
 
         # Append structured sections to main container
@@ -622,7 +645,39 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
 
         pop_box.append(Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL, css_classes=["popover-sep"]))
 
-        # 5. Indentation & Whitespace
+        # 5. Case Converters
+        sec_case = Gtk.Label(label="Case Converters", halign=Gtk.Align.START, css_classes=["popover-subtitle"])
+        pop_box.append(sec_case)
+
+        btn_camel = _create_menu_row("format-text-symbolic", "Convert to camelCase")
+        btn_camel.connect("clicked", lambda _: (self._apply_tool_action("case_camel"), self.tools_popover.popdown()))
+        btn_snake = _create_menu_row("format-text-symbolic", "Convert to snake_case")
+        btn_snake.connect("clicked", lambda _: (self._apply_tool_action("case_snake"), self.tools_popover.popdown()))
+        btn_pascal = _create_menu_row("format-text-symbolic", "Convert to PascalCase")
+        btn_pascal.connect("clicked", lambda _: (self._apply_tool_action("case_pascal"), self.tools_popover.popdown()))
+        btn_const = _create_menu_row("format-text-symbolic", "Convert to CONSTANT_CASE")
+        btn_const.connect("clicked", lambda _: (self._apply_tool_action("case_constant"), self.tools_popover.popdown()))
+        pop_box.append(btn_camel)
+        pop_box.append(btn_snake)
+        pop_box.append(btn_pascal)
+        pop_box.append(btn_const)
+
+        pop_box.append(Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL, css_classes=["popover-sep"]))
+
+        # 6. String Literals & Escaping
+        sec_esc = Gtk.Label(label="String & Literal Escaping", halign=Gtk.Align.START, css_classes=["popover-subtitle"])
+        pop_box.append(sec_esc)
+
+        btn_esc = _create_menu_row("edit-copy-symbolic", "Escape String (\\\", \\n, \\t)")
+        btn_esc.connect("clicked", lambda _: (self._apply_tool_action("escape_str"), self.tools_popover.popdown()))
+        btn_unesc = _create_menu_row("edit-paste-symbolic", "Unescape String Literals")
+        btn_unesc.connect("clicked", lambda _: (self._apply_tool_action("unescape_str"), self.tools_popover.popdown()))
+        pop_box.append(btn_esc)
+        pop_box.append(btn_unesc)
+
+        pop_box.append(Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL, css_classes=["popover-sep"]))
+
+        # 7. Indentation & Whitespace
         sec_indent = Gtk.Label(label="Indentation & Whitespace", halign=Gtk.Align.START, css_classes=["popover-subtitle"])
         pop_box.append(sec_indent)
 
@@ -638,7 +693,7 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
 
         pop_box.append(Gtk.Separator(orientation=Gtk.Orientation.HORIZONTAL, css_classes=["popover-sep"]))
 
-        # 6. Lines
+        # 8. Lines
         sec_lines = Gtk.Label(label="Line Operations", halign=Gtk.Align.START, css_classes=["popover-subtitle"])
         pop_box.append(sec_lines)
 
@@ -646,11 +701,14 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
         btn_del_blank.connect("clicked", lambda _: (self._apply_tool_action("remove_blank"), self.tools_popover.popdown()))
         btn_dedup = _create_menu_row("view-refresh-symbolic", "Deduplicate Lines")
         btn_dedup.connect("clicked", lambda _: (self._apply_tool_action("dedup"), self.tools_popover.popdown()))
-        btn_sort = _create_menu_row("view-list-bullet-symbolic", "Sort Lines (A-Z)")
+        btn_sort = _create_menu_row("view-list-bullet-symbolic", "Sort Lines (A → Z)")
         btn_sort.connect("clicked", lambda _: (self._apply_tool_action("sort_az"), self.tools_popover.popdown()))
+        btn_sort_rev = _create_menu_row("view-list-bullet-symbolic", "Sort Lines (Z → A)")
+        btn_sort_rev.connect("clicked", lambda _: (self._apply_tool_action("sort_za"), self.tools_popover.popdown()))
         pop_box.append(btn_del_blank)
         pop_box.append(btn_dedup)
         pop_box.append(btn_sort)
+        pop_box.append(btn_sort_rev)
 
         scroll.set_child(pop_box)
         self.tools_popover.set_child(scroll)
@@ -673,6 +731,18 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
             transformed = strip_comments_and_docstrings(raw, lang_id)
         elif action == "compensate_brackets":
             transformed = compensate_auto_close(raw)
+        elif action == "escape_str":
+            transformed = escape_string(raw)
+        elif action == "unescape_str":
+            transformed = unescape_string(raw)
+        elif action == "case_camel":
+            transformed = change_case(raw, "camel")
+        elif action == "case_snake":
+            transformed = change_case(raw, "snake")
+        elif action == "case_pascal":
+            transformed = change_case(raw, "pascal")
+        elif action == "case_constant":
+            transformed = change_case(raw, "constant")
         elif action == "format_auto":
             if lang_id == "json":
                 ok, res = format_json(raw, 2)
@@ -729,6 +799,9 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
             transformed = deduplicate_lines(raw)
         elif action == "sort_az":
             transformed = sort_lines(raw, reverse=False)
+        elif action == "sort_za":
+            transformed = sort_lines(raw, reverse=True)
+
 
         if sel:
             bounds = editor.get_buffer().get_selection_bounds()
@@ -1174,15 +1247,40 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
 
     def _update_editor_stats(self) -> None:
         stats = self._active_editor().get_stats()
-        lines, chars, sel_chars = stats["lines"], stats["chars"], stats["selected_chars"]
+        lines = stats.get("lines", 0)
+        chars = stats.get("chars", 0)
+        words = stats.get("words", 0)
+        sel_chars = stats.get("selected_chars", 0)
+        cursor_line = stats.get("cursor_line", 1)
+        cursor_col = stats.get("cursor_col", 1)
+
+        # Estimate duration with cognitive pause overhead
+        delay_ms = float(self.delay_spin.get_value()) if hasattr(self, "delay_spin") else 8.0
+        active_chars = sel_chars if sel_chars > 0 else chars
+        est_sec = (active_chars * delay_ms) / 1000.0 if active_chars > 0 else 0.0
+        if hasattr(self, "humanize_toggle") and self.humanize_toggle.get_active():
+            est_sec *= 1.35
+
+        if est_sec < 60:
+            est_str = f"~{est_sec:.1f}s"
+        else:
+            est_str = f"~{int(est_sec // 60)}m {int(est_sec % 60)}s"
+
+        if hasattr(self, "est_time_pill"):
+            self.est_time_pill.set_text(est_str)
+
+        if hasattr(self, "cursor_pill"):
+            self.cursor_pill.set_text(f"Ln {cursor_line}, Col {cursor_col}")
+
         if sel_chars > 0:
-            self.stats_label.set_text(f"{lines} lines · {chars} chars ({sel_chars} sel)")
+            self.stats_pill.set_text(f"{lines} lines · {chars} chars · {words} words ({sel_chars} sel)")
             if hasattr(self, "arm_button_label") and self.state == AppState.IDLE:
                 self.arm_button_label.set_text(f"ARM & TYPE Selection ({sel_chars} chars)")
         else:
-            self.stats_label.set_text(f"{lines} lines · {chars} chars")
+            self.stats_pill.set_text(f"{lines} lines · {chars} chars · {words} words")
             if hasattr(self, "arm_button_label") and self.state == AppState.IDLE:
                 self.arm_button_label.set_text("ARM & TYPE (Ctrl+Enter)")
+
 
     # ═══════════════════════════════════════════════════════
     #  PROFILES
@@ -1927,12 +2025,32 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
         except Exception:
             pass
 
-    # ═══════════════════════════════════════════════════════
-    #  STATUS
-    # ═══════════════════════════════════════════════════════
-
     def set_status(self, text: str) -> None:
-        self.status_label.set_text(f"Status: {text}")
+        self.status_label.set_text(text)
+        if hasattr(self, "status_pill"):
+            for cls in (
+                "status-pill-ready",
+                "status-pill-typing",
+                "status-pill-paused",
+                "status-pill-armed",
+                "status-pill-done",
+            ):
+                self.status_pill.remove_css_class(cls)
+
+            if self.state == AppState.TYPING:
+                self.status_pill.set_text("● Streaming")
+                self.status_pill.add_css_class("status-pill-typing")
+            elif self.state == AppState.PAUSED:
+                self.status_pill.set_text("⏸ Paused")
+                self.status_pill.add_css_class("status-pill-paused")
+            elif self.state == AppState.COUNTDOWN:
+                self.status_pill.set_text("⏳ Armed")
+                self.status_pill.add_css_class("status-pill-armed")
+            else:
+                self.status_pill.set_text("● Ready")
+                self.status_pill.add_css_class("status-pill-ready")
+
+
 
 
 # Backward compatibility alias
