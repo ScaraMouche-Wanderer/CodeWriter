@@ -37,12 +37,14 @@
 ## 🎯 Why CodeWriter?
 
 > [!IMPORTANT]
-> **Paste restrictions blocking your workflow?**
-> When working inside **locked remote desktops (Citrix, VMware Horizon, RDP), VM web consoles (AWS Cloud9, Proxmox, vSphere), online IDEs (LeetCode, HackerRank), or restricted interview environments**, standard clipboard paste (`Ctrl+V`) is often intercepted or blocked.
-
-**CodeWriter** solves this seamlessly by transmitting staged code payloads directly through the Linux kernel input subsystem via hardware-level `ydotool` emulation. To the operating system and target application, keystrokes are indistinguishable from a physical USB keyboard.
+> ### 🛑 Clipboard & Paste Restrictions Blocking Your Workflow?
+> When working inside **locked remote desktops** *(Citrix, VMware Horizon, RDP)*, **VM web consoles** *(AWS Cloud9, Proxmox, vSphere, Guacamole)*, **online coding environments** *(LeetCode, HackerRank)*, or **proctored coding assessments**, standard clipboard paste (`Ctrl+V`) is frequently intercepted, blocked, or flagged.
+> 
+> ⚡ **The Hardware-Level Solution:**  
+> **CodeWriter** bypasses all software clipboard monitors by transmitting staged code payloads directly through the Linux kernel input subsystem (`/dev/uinput`) via `ydotool`. To the OS and target window, every character arrives as genuine hardware keystrokes from a physical keyboard.
 
 ---
+
 
 ## ⚡ Quick Start
 
