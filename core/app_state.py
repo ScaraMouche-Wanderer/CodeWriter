@@ -12,3 +12,5 @@ class AppState(Enum):
     IDLE = auto()
     COUNTDOWN = auto()
     TYPING = auto()
+    PAUSED = auto()
+

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Manual diagnostic script for ydotool.
-Types 'hello from codetyper' into the active focused window.
+Types 'hello from codewriter' into the active focused window.
 """
 
 import subprocess
@@ -10,11 +10,11 @@ import time
 
 
 def main() -> int:
-    message = "hello from codetyper"
+    message = "hello from codewriter"
     countdown = 3
 
     print("=" * 60)
-    print(" CodeTyper — ydotool Diagnostic Test")
+    print(" CodeWriter — ydotool Diagnostic Test")
     print("=" * 60)
     print(f"Target text: '{message}'")
     print(f"You have {countdown} seconds to switch focus to your target text field...\n")

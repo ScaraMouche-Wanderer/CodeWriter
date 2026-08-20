@@ -151,3 +151,92 @@ def test_typing_controller_error_handling() -> None:
     assert len(complete_events) == 0
     assert len(error_events) == 1
     assert "Simulated daemon crash" in error_events[0]
+
+
+def test_chunk_boundary_unicode_and_emoji() -> None:
+    """Test chunk boundaries safely preserve multi-byte Unicode and emoji codepoints without corruption."""
+    backend = MockBackend(delay_per_call=0.001)
+    controller = TypingController(backend)
+
+    # Text containing emojis, CJK, Cyrillic, accented characters, symbols
+    multibyte_code = (
+        "# 🚀 Starting fast processor 🔥\n"
+        "def process_data():\n"
+        "    # 日本語のコメント: こんにちは世界 🌸\n"
+        "    # Привет мир! Тестирование кодировки ✨\n"
+        "    # Über-cool résumé with accents: café, naïve, façade 💡\n"
+        "    return {'status': 'ok', 'flag': '🎉'}\n"
+    )
+
+    progress_events = []
+    complete_events = []
+
+    controller.start(
+        text=multibyte_code,
+        delay_ms=8,
+        on_progress=lambda sent, total: progress_events.append((sent, total)),
+        on_complete=lambda total: complete_events.append(total),
+        on_cancelled=lambda sent: None,
+        on_error=lambda msg: None,
+    )
+
+    while controller.is_running():
+        _drain_glib_events()
+        time.sleep(0.005)
+    _drain_glib_events()
+
+    # Verify chunks reassemble identically to original text
+    reassembled = "".join(chunk[0] for chunk in backend.chunks)
+    assert reassembled == multibyte_code
+    assert complete_events == [len(multibyte_code)]
+    assert progress_events[-1] == (len(multibyte_code), len(multibyte_code))
+
+
+def test_typing_controller_pause_and_resume() -> None:
+    """Test pause freezes chunk transmission and resume continues to completion."""
+    controller = None
+    paused_once = False
+
+    def pause_on_first_chunk():
+        nonlocal paused_once
+        if controller and not paused_once:
+            paused_once = True
+            controller.pause()
+
+    backend = MockBackend(delay_per_call=0.01, on_chunk=pause_on_first_chunk)
+    controller = TypingController(backend)
+
+    complete_events = []
+    text = "a" * 200  # 4 chunks of 50
+
+    controller.start(
+        text=text,
+        delay_ms=8,
+        on_progress=lambda s, t: None,
+        on_complete=lambda t: complete_events.append(t),
+        on_cancelled=lambda s: None,
+        on_error=lambda msg: None,
+    )
+
+    # Wait for pause to take effect after chunk 1
+    time.sleep(0.03)
+    _drain_glib_events()
+    assert controller.is_paused()
+    assert len(complete_events) == 0
+    assert len(backend.chunks) == 1
+
+    # Resume and verify completion
+    controller.resume()
+    assert not controller.is_paused()
+
+    while controller.is_running():
+        _drain_glib_events()
+        time.sleep(0.005)
+    _drain_glib_events()
+
+    assert complete_events == [200]
+    assert len(backend.chunks) == 4
+
+
+
+

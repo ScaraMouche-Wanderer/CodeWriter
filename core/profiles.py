@@ -1,11 +1,12 @@
 """
-Profile storage and management for CodeTyper.
+Profile storage and management for CodeWriter.
 Provides persistent configuration profiles stored as JSON.
 Pure data layer with zero UI dependencies.
 """
 
 import json
 import os
+import shutil
 from pathlib import Path
 from typing import List, Optional
 
@@ -21,12 +22,23 @@ DEFAULT_PROFILE = {
 
 class ProfileStore:
     """
-    Manages loading and saving user typing profiles to ~/.local/share/codetyper/profiles.json
+    Manages loading and saving user typing profiles to ~/.local/share/codewriter/profiles.json
     using atomic file operations and self-healing error recovery.
     """
 
     def __init__(self, path: Optional[Path] = None) -> None:
-        self._path = Path(path) if path else (Path.home() / ".local" / "share" / "codetyper" / "profiles.json")
+        if path:
+            self._path = Path(path)
+        else:
+            new_path = Path.home() / ".local" / "share" / "codewriter" / "profiles.json"
+            old_path = Path.home() / ".local" / "share" / "codetyper" / "profiles.json"
+            if not new_path.exists() and old_path.exists():
+                new_path.parent.mkdir(parents=True, exist_ok=True)
+                try:
+                    shutil.copy2(old_path, new_path)
+                except Exception:
+                    pass
+            self._path = new_path
 
     def load(self) -> List[dict]:
         """
@@ -75,18 +87,29 @@ class ProfileStore:
 
     def upsert(self, profile: dict) -> List[dict]:
         """
-        Loads current profiles, replaces matching entry (by name) in-place or appends,
-        saves to disk, and returns the updated list.
+        Appends or updates a profile by matching 'name'.
+        Returns the updated profile list.
         """
         profiles = self.load()
-        target_name = profile.get("name", "Default")
+        idx = next((i for i, p in enumerate(profiles) if p.get("name") == profile.get("name")), None)
 
-        for idx, existing in enumerate(profiles):
-            if existing.get("name") == target_name:
-                profiles[idx] = dict(profile)
-                self.save(profiles)
-                return profiles
+        if idx is not None:
+            profiles[idx] = profile
+        else:
+            profiles.append(profile)
 
-        profiles.append(dict(profile))
+        self.save(profiles)
+        return profiles
+
+    def delete(self, name: str) -> List[dict]:
+        """
+        Removes the profile with matching 'name'.
+        'Default' profile can never be deleted.
+        Returns the updated profile list.
+        """
+        if name == "Default":
+            return self.load()
+
+        profiles = [p for p in self.load() if p.get("name") != name]
         self.save(profiles)
         return profiles

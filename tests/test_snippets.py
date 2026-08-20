@@ -91,3 +91,57 @@ def test_missing_or_corrupt_file_returns_empty_list(tmp_path: Path) -> None:
     corrupt.write_text("{bad json...", encoding="utf-8")
     corrupt_store = SnippetStore(corrupt)
     assert corrupt_store.load() == []
+
+
+def test_snippet_soft_cap_large_content(tmp_path: Path) -> None:
+    """Snippets exceeding MAX_SNIPPET_CHARS are ignored and not saved."""
+    store_path = tmp_path / "recent.json"
+    store = SnippetStore(store_path)
+
+    # Add a normal snippet first
+    store.add("normal snippet")
+    assert len(store.load()) == 1
+
+    # Attempt to add a massive snippet (e.g. 60,000 characters)
+    huge_snippet = "x" * 60_000
+    res = store.add(huge_snippet)
+
+    # Should not add the huge snippet
+    assert len(res) == 1
+    assert res[0]["content"] == "normal snippet"
+    assert len(store.load()) == 1
+
+
+def test_snippet_delete_by_id(tmp_path: Path) -> None:
+    """Deleting a snippet by id removes it from the store and persists changes."""
+    store_path = tmp_path / "recent.json"
+    store = SnippetStore(store_path)
+
+    store.add("Snippet 1")
+    store.add("Snippet 2")
+    items = store.load()
+    assert len(items) == 2
+
+    target_id = items[0]["id"]
+    updated = store.delete(target_id)
+
+    assert len(updated) == 1
+    assert updated[0]["content"] == "Snippet 1"
+    assert len(store.load()) == 1
+
+
+def test_snippet_clear_all(tmp_path: Path) -> None:
+    """Clearing snippet store empties the list and persists an empty list."""
+    store_path = tmp_path / "recent.json"
+    store = SnippetStore(store_path)
+
+    store.add("Snippet 1")
+    store.add("Snippet 2")
+    store.add("Snippet 3")
+    assert len(store.load()) == 3
+
+    cleared = store.clear()
+    assert cleared == []
+    assert store.load() == []
+
+

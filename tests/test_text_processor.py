@@ -2,7 +2,8 @@
 Unit tests for core.text_processor transformations (Smart and Preserve modes).
 """
 
-from core.text_processor import preserve, smart
+from core.text_processor import compensate_auto_close, preserve, smart
+
 
 
 def test_nested_cpp_class() -> None:
@@ -116,3 +117,65 @@ def test_single_line_unindented() -> None:
     single_line = "print('hello world')"
     assert smart(single_line) == single_line
     assert preserve(single_line) == single_line
+
+
+def test_multiline_string_literals_and_raw_strings() -> None:
+    """
+    Test behavior of multi-line strings and raw literals in both Smart and Preserve modes.
+    Preserve mode maintains exact internal whitespace/indentation.
+    Smart mode strips per-line leading/trailing whitespace for auto-indenting editors.
+    """
+    python_docstring = (
+        'def get_query():\n'
+        '    """\n'
+        '    SELECT id, name\n'
+        '    FROM users\n'
+        '    WHERE active = 1\n'
+        '    """\n'
+        '    return query\n'
+    )
+
+    # Preserve mode leaves all internal indentation completely intact
+    assert preserve(python_docstring) == python_docstring
+
+    # Smart mode strips each line's leading/trailing whitespace
+    expected_smart = (
+        'def get_query():\n'
+        '"""\n'
+        'SELECT id, name\n'
+        'FROM users\n'
+        'WHERE active = 1\n'
+        '"""\n'
+        'return query\n'
+    )
+    assert smart(python_docstring) == expected_smart
+
+    # C++ raw string literal
+    cpp_raw = (
+        'const char* json = R"(\n'
+        '{\n'
+        '    "key": "value",\n'
+        '    "list": [1, 2, 3]\n'
+        '}\n'
+        ')";\n'
+    )
+    assert preserve(cpp_raw) == cpp_raw
+    expected_cpp_smart = (
+        'const char* json = R"(\n'
+        '{\n'
+        '"key": "value",\n'
+        '"list": [1, 2, 3]\n'
+        '}\n'
+        ')";\n'
+    )
+    assert smart(cpp_raw) == expected_cpp_smart
+
+
+def test_compensate_auto_close():
+    """Test auto-closing bracket compensation replaces empty pairs."""
+    code = "def foo():\n    arr = []\n    obj = {}\n"
+    compensated = compensate_auto_close(code)
+    assert compensated == "def foo(:\n    arr = [\n    obj = {\n"
+    assert compensate_auto_close("") == ""
+
+

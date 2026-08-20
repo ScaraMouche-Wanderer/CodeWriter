@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=CodeWriter
+GenericName=Keystroke Simulation Utility
+Comment=Native Linux keystroke automation & typing utility for developers
+Exec=codewriter
+Icon=codewriter
+Terminal=false
+Categories=Utility;Development;
+StartupNotify=true
+StartupWMClass=com.local.codewriter
+X-GNOME-UsesNotifications=true

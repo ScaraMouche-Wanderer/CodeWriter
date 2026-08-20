@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <!-- Background Gradient: Obsidian Night with Deep Indigo Undertone -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c0d14" />
+      <stop offset="50%" stop-color="#141726" />
+      <stop offset="100%" stop-color="#08090f" />
+    </linearGradient>
+
+    <!-- Outer Rim Neon Gradient: Electric Cyan to Vivid Magenta -->
+    <linearGradient id="rimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f5d4" />
+      <stop offset="45%" stop-color="#00bbf9" />
+      <stop offset="75%" stop-color="#9d4edd" />
+      <stop offset="100%" stop-color="#f72585" />
+    </linearGradient>
+
+    <!-- Left Bracket Blade: Electric Cyan / Aqua Stream -->
+    <linearGradient id="bracketGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f5d4" />
+      <stop offset="100%" stop-color="#0096c7" />
+    </linearGradient>
+
+    <!-- Upper Nib Blade: Luminous Purple / Ultra Violet -->
+    <linearGradient id="upperNibGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c77dff" />
+      <stop offset="100%" stop-color="#7209b7" />
+    </linearGradient>
+
+    <!-- Lower Nib Blade: Hot Pink / Solar Amber -->
+    <linearGradient id="lowerNibGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f72585" />
+      <stop offset="100%" stop-color="#ff7b00" />
+    </linearGradient>
+
+    <!-- Stream Pulse Dots Gradient -->
+    <linearGradient id="sparkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#00f5d4" />
+    </linearGradient>
+
+    <!-- Drop Shadow Filters -->
+    <filter id="tileShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.65" />
+    </filter>
+
+    <filter id="cyanGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#00f5d4" flood-opacity="0.6" />
+    </filter>
+
+    <filter id="magentaGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#f72585" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- ── 1. Outer Squircle Tile with Neon Edge ── -->
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="url(#bgGrad)" stroke="url(#rimGrad)" stroke-width="2.2" filter="url(#tileShadow)" />
+
+  <!-- ── 2. Subtle Geometric Circuit Grid Pattern ── -->
+  <g opacity="0.12" stroke="#00bbf9" stroke-width="1" stroke-linecap="round">
+    <line x1="20" y1="36" x2="40" y2="36" />
+    <line x1="40" y1="36" x2="48" y2="28" />
+    <circle cx="48" cy="28" r="1.5" fill="#00bbf9" />
+
+    <line x1="108" y1="92" x2="88" y2="92" />
+    <line x1="88" y1="92" x2="80" y2="100" />
+    <circle cx="80" cy="100" r="1.5" fill="#00bbf9" />
+
+    <circle cx="28" cy="96" r="1" fill="#00f5d4" />
+    <circle cx="100" cy="32" r="1" fill="#f72585" />
+  </g>
+
+  <!-- ── 3. Background Keystroke Rhythm Pulse Waves (Top Right) ── -->
+  <g opacity="0.35" stroke="url(#rimGrad)" stroke-width="1.8" stroke-linecap="round" fill="none">
+    <path d="M 82 26 C 90 28, 98 34, 102 42" />
+    <path d="M 88 22 C 98 25, 106 33, 110 44" opacity="0.6" />
+  </g>
+
+  <!-- ── 4. Primary Code Chevron '<' (Left Wing) ── -->
+  <path d="M 44 38 L 24 64 L 44 90" fill="none" stroke="url(#bracketGrad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" filter="url(#cyanGlow)" />
+
+  <!-- ── 5. Fusion Writer Quill & Slash Nib '>' (Right Wing) ── -->
+  <!-- Upper Blade: Purple/Violet Cyber Quill -->
+  <path d="M 60 34 L 98 56 L 68 64 Z" fill="url(#upperNibGrad)" filter="url(#magentaGlow)" />
+
+  <!-- Lower Blade: Magenta/Sunset Amber Quill -->
+  <path d="M 60 94 L 98 72 L 68 64 Z" fill="url(#lowerNibGrad)" filter="url(#magentaGlow)" />
+
+  <!-- ── 6. Central Slit & Blazing Terminal Cursor Line ── -->
+  <line x1="102" y1="64" x2="56" y2="64" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+
+  <!-- ── 7. Quantum Breather Eye ── -->
+  <circle cx="54" cy="64" r="4.5" fill="#0c0d14" stroke="#00f5d4" stroke-width="2.5" />
+  <circle cx="54" cy="64" r="1.5" fill="#ffffff" />
+
+  <!-- ── 8. Writing Tip Laser Emitter Spark & Stream Photons ── -->
+  <!-- Leading Spark -->
+  <polygon points="106,64 104,61 101,64 104,67" fill="#ffffff" filter="url(#cyanGlow)" />
+  <circle cx="106" cy="64" r="2" fill="#00f5d4" />
+
+  <!-- Keystroke Cadence Particle Trail -->
+  <circle cx="112" cy="58" r="2" fill="url(#sparkGrad)" opacity="0.9" filter="url(#cyanGlow)" />
+  <circle cx="116" cy="49" r="1.5" fill="#f72585" opacity="0.75" />
+  <circle cx="118" cy="38" r="1.2" fill="#00f5d4" opacity="0.6" />
+</svg>

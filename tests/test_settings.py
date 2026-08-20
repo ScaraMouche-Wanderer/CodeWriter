@@ -53,4 +53,22 @@ def test_save_and_reload_settings(tmp_path: Path) -> None:
     store.save(custom)
 
     loaded = store.load()
-    assert loaded == custom
+    # load() merges saved values with DEFAULT_SETTINGS, so we check
+    # that our custom values are present and defaults are filled in
+    assert loaded["window_width"] == 880
+    assert loaded["window_height"] == 720
+    assert loaded["last_selected_profile"] == "GFG C++"
+    assert "notify_on_complete" in loaded
+    assert "show_session_stats" in loaded
+    assert loaded["font_size"] == 11
+    assert loaded["show_line_numbers"] is True
+    assert loaded["word_wrap"] is False
+    assert loaded["highlight_current_line"] is True
+    assert loaded["sound_chime"] is True
+    assert loaded["default_delay_ms"] == 15
+    assert loaded["default_countdown_sec"] == 3
+    assert loaded["default_mode"] == "smart"
+    assert loaded["enable_tray"] is True
+    assert loaded["minimize_to_tray"] is False
+
+

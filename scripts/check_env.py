@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Environment and dependency validation script for CodeTyper.
+Environment and dependency validation script for CodeWriter.
 Checks Python version, PyGObject, GTK4, GtkSourceView 5, and ydotool reachability.
 """
 
@@ -148,7 +148,7 @@ def check_ydotool() -> Tuple[bool, str, List[str]]:
 
 def main() -> int:
     print("=" * 60)
-    print(" CodeTyper — Environment & Dependency Check (Phase 0)")
+    print(" CodeWriter — Environment & Dependency Check")
     print("=" * 60)
 
     all_passed = True
@@ -180,7 +180,7 @@ def main() -> int:
 
     print("-" * 60)
     if all_passed:
-        print("Result: ALL PREREQUISITES MET. Environment is ready for CodeTyper.")
+        print("Result: ALL PREREQUISITES MET. Environment is ready for CodeWriter.")
         print("=" * 60)
         return 0
     else:

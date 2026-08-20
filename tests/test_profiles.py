@@ -84,3 +84,29 @@ def test_upsert_replaces_existing_profile_in_place(tmp_path: Path) -> None:
     assert [p["name"] for p in updated] == ["Default", "Custom 1", "Custom 2"]
     assert updated[1]["delay_ms"] == 8
     assert updated[1]["mode"] == "preserve"
+
+
+def test_delete_custom_profile(tmp_path: Path) -> None:
+    """Deleting a custom profile removes it and persists the updated list."""
+    profile_path = tmp_path / "profiles.json"
+    store = ProfileStore(profile_path)
+
+    store.upsert({"name": "ProfileToKeep", "delay_ms": 5, "countdown_sec": 3, "mode": "smart", "target": "", "language": ""})
+    store.upsert({"name": "ProfileToDelete", "delay_ms": 10, "countdown_sec": 2, "mode": "preserve", "target": "", "language": ""})
+    assert len(store.load()) == 3
+
+    updated = store.delete("ProfileToDelete")
+    assert len(updated) == 2
+    assert [p["name"] for p in updated] == ["Default", "ProfileToKeep"]
+    assert [p["name"] for p in store.load()] == ["Default", "ProfileToKeep"]
+
+
+def test_delete_default_profile_is_noop(tmp_path: Path) -> None:
+    """Attempting to delete 'Default' profile leaves it intact."""
+    profile_path = tmp_path / "profiles.json"
+    store = ProfileStore(profile_path)
+
+    updated = store.delete("Default")
+    assert len(updated) == 1
+    assert updated[0]["name"] == "Default"
+
