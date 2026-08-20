@@ -28,9 +28,9 @@
 
 <br/>
 
-[![CodeWriter Live Visualizer Demo](docs/assets/codewriter_demo.gif)](https://github.com/ScaraMouche-Wanderer/CodeWriter)
-
-</div>
+<p align="center">
+  <img src="docs/assets/codewriter_demo.gif" width="720" alt="CodeWriter Live Simulation Visualizer Demo" />
+</p>
 
 ---
 
@@ -71,8 +71,6 @@ python3 app.py
 
 ## 📸 Interface Showcase
 
-<div align="center">
-
 | 📝 Multi-Tab Code Editor & Formatter | ⚙️ 4-Tab Comprehensive Preferences |
 |:---:|:---:|
 | <img src="docs/assets/codewriter_main.png" width="460" alt="CodeWriter Main Window" /> | <img src="docs/assets/codewriter_preferences.png" width="460" alt="CodeWriter Preferences" /> |
@@ -81,9 +79,8 @@ python3 app.py
 |:---:|:---:|
 | <img src="docs/assets/codewriter_visualizer.png" width="460" alt="CodeWriter Simulation Visualizer" /> | <img src="resources/icons/codewriter.svg" width="120" alt="System Tray" /><br/>*Native StatusNotifierItem with live status transitions* |
 
-</div>
-
 ---
+
 
 ## 🚀 Key Features
 
