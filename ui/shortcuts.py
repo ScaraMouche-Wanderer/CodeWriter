@@ -14,6 +14,8 @@ def create_shortcuts_window(parent: Gtk.Window) -> Gtk.ShortcutsWindow:
     Build and return a Gtk.ShortcutsWindow showing all CodeTyper shortcuts.
     """
     win = Gtk.ShortcutsWindow(transient_for=parent, modal=True)
+    win.add_css_class("app-dialog")
+    win.add_css_class("light-theme")
 
     section = Gtk.ShortcutsSection(title="CodeWriter Shortcuts", section_name="main")
     section.set_visible(True)
@@ -22,7 +24,7 @@ def create_shortcuts_window(parent: Gtk.Window) -> Gtk.ShortcutsWindow:
     typing_group = Gtk.ShortcutsGroup(title="Typing & Simulation")
     typing_group.set_visible(True)
     _add_shortcut(typing_group, "<Control>Return", "ARM & TYPE")
-    _add_shortcut(typing_group, "Space", "Pause / Resume Typing")
+    _add_shortcut(typing_group, "space", "Pause / Resume Typing")
     _add_shortcut(typing_group, "Escape", "Stop / Cancel Countdown")
     _add_shortcut(typing_group, "<Control>p", "Pre-Flight Preview")
     _add_shortcut(typing_group, "<Control><Shift>p", "Live Simulation Visualizer")

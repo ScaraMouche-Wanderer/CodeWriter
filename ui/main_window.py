@@ -142,6 +142,8 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
 
         self.set_title("CodeWriter")
         self.set_icon_name("codewriter")
+        self.add_css_class("app-window")
+        self.add_css_class("light-theme")
         self.set_size_request(400, 360)
         self.set_default_size(settings.get("window_width", 780), settings.get("window_height", 580))
 
@@ -221,7 +223,7 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
         self.delete_profile_btn.set_sensitive(False)
         self.delete_profile_btn.connect("clicked", self._on_delete_profile_clicked)
 
-        profile_actions = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0, css_classes=["linked"])
+        profile_actions = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3, css_classes=["toolbar-group"])
         profile_actions.append(self.save_profile_btn)
         profile_actions.append(self.delete_profile_btn)
 
@@ -234,7 +236,7 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
         app_toolbar.append(Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True))
 
         # Utilities / Popovers (Right)
-        util_group = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0, css_classes=["linked"])
+        util_group = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3, css_classes=["toolbar-group"])
 
         self.history_btn = self._create_icon_menubutton("document-open-recent-symbolic", "History", "Recent Snippets")
         self._build_history_popover()
@@ -264,12 +266,13 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
         lang_names = [label for label, _ in SUPPORTED_LANGUAGES]
         self.language_dropdown = Gtk.DropDown.new_from_strings(lang_names)
         self.language_dropdown.add_css_class("lang-dropdown")
+        self.language_dropdown.set_enable_search(True)
         self.language_dropdown.connect("notify::selected", self._on_language_selected)
         lang_group.append(lang_label)
         lang_group.append(self.language_dropdown)
 
         # Templates & Tools popover buttons
-        feature_group = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0, css_classes=["linked"])
+        feature_group = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3, css_classes=["toolbar-group"])
 
         self.tools_btn = self._create_icon_menubutton(
             "preferences-other-symbolic", "Tools", "Code tools, AI Markdown extract, and dry-run preview"
@@ -290,7 +293,7 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
         editor_toolbar.append(Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, hexpand=True))
 
         # File Operations (Open, Save, Paste, Copy, Clear)
-        file_group = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0, css_classes=["linked"])
+        file_group = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3, css_classes=["toolbar-group"])
         self.open_btn = self._create_icon_button("document-open-symbolic", "Open", "Open File (Ctrl+O)")
         self.open_btn.connect("clicked", self._on_open_file_clicked)
         file_group.append(self.open_btn)
@@ -362,7 +365,7 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
 
         speed_group = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4, css_classes=["toolbar-group"])
         speed_label = Gtk.Label(label="Speed:", css_classes=["control-label"])
-        presets_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0, css_classes=["linked"])
+        presets_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3, css_classes=["toolbar-group"])
 
         self.preset_fast_btn = Gtk.Button(label=f"Fast ({PRESET_FAST_MS}ms)", css_classes=["preset-btn"])
         self.preset_fast_btn.connect("clicked", lambda _: self.delay_spin.set_value(float(PRESET_FAST_MS)))
@@ -622,7 +625,7 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
         # Typo Rate Selector
         typo_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=4, margin_top=3, margin_bottom=3)
         typo_lbl = Gtk.Label(label="Typo Rate:", css_classes=["toolbar-label"])
-        typo_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0, css_classes=["linked"])
+        typo_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=3, css_classes=["toolbar-group"])
         btn_t0 = Gtk.Button(label="Off", css_classes=["preset-btn"])
         btn_t1 = Gtk.Button(label="1%", css_classes=["preset-btn"])
         btn_t3 = Gtk.Button(label="3%", css_classes=["preset-btn"])
@@ -981,7 +984,15 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
         pop_box.append(title)
 
         listbox = Gtk.ListBox(css_classes=["popover-listbox"])
-        scroll = Gtk.ScrolledWindow(child=listbox, min_content_height=200, min_content_width=270, max_content_height=320)
+        scroll = Gtk.ScrolledWindow(
+            child=listbox,
+            hscrollbar_policy=Gtk.PolicyType.NEVER,
+            vscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
+            min_content_height=200,
+            min_content_width=270,
+            max_content_height=320,
+            propagate_natural_height=True,
+        )
 
         for tmpl in STARTER_TEMPLATES:
             row = Gtk.ListBoxRow(css_classes=["template-row"])
@@ -1051,10 +1062,13 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
         self.recent_listbox.connect("row-activated", self._on_recent_row_activated)
         scroll = Gtk.ScrolledWindow(
             child=self.recent_listbox,
+            hscrollbar_policy=Gtk.PolicyType.NEVER,
+            vscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
             css_classes=["recent-scroll"],
             min_content_height=140,
             min_content_width=280,
             max_content_height=260,
+            propagate_natural_height=True,
         )
         pop_box.append(scroll)
 
@@ -1094,10 +1108,13 @@ class CodeWriterWindow(Gtk.ApplicationWindow):
         self.session_listbox = Gtk.ListBox(css_classes=["popover-listbox"])
         scroll = Gtk.ScrolledWindow(
             child=self.session_listbox,
+            hscrollbar_policy=Gtk.PolicyType.NEVER,
+            vscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
             css_classes=["session-log-scroll"],
             min_content_height=140,
             min_content_width=320,
             max_content_height=260,
+            propagate_natural_height=True,
         )
         pop_box.append(scroll)
 

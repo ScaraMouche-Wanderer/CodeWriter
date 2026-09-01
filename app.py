@@ -56,6 +56,10 @@ class CodeWriterApp(Gtk.Application):
     def do_startup(self) -> None:
         """Called when the application starts; load CSS resources, icon theme paths, and tray."""
         Gtk.Application.do_startup(self)
+        # Enforce pure Light Theme globally (no dark screens or dark theme inheritance)
+        settings = Gtk.Settings.get_default()
+        if settings:
+            settings.set_property("gtk-application-prefer-dark-theme", False)
         self._load_css()
         self._load_icons()
         self._init_tray()

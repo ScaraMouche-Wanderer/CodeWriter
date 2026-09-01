@@ -113,6 +113,10 @@ class CodeEditor(Gtk.ScrolledWindow):
 
         # Initialize GtkSourceBuffer & GtkSourceView
         self.buffer = GtkSource.Buffer()
+        scheme_mgr = GtkSource.StyleSchemeManager.get_default()
+        light_scheme = scheme_mgr.get_scheme("classic") or scheme_mgr.get_scheme("Adwaita")
+        if light_scheme:
+            self.buffer.set_style_scheme(light_scheme)
         self.view = GtkSource.View.new_with_buffer(self.buffer)
 
         # Editor configuration

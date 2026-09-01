@@ -32,6 +32,124 @@
 
 
 /* ═══════════════════════════════════════════════
+   UNIVERSAL LIGHT THEME (ALL WINDOWS & DIALOGS)
+   ═══════════════════════════════════════════════ */
+
+window,
+dialog,
+messagedialog,
+shortcutswindow,
+.background,
+window.background,
+dialog.background,
+messagedialog.background,
+.app-window,
+.app-dialog,
+.light-theme {
+    background-color: var(--ct-bg);
+    color: var(--ct-text);
+}
+
+headerbar,
+windowtitle {
+    background-color: var(--ct-bg);
+    color: var(--ct-text);
+    border-bottom: 1px solid var(--ct-border);
+}
+
+headerbar label,
+windowtitle label,
+headerbar title,
+headerbar subtitle {
+    color: var(--ct-text);
+}
+
+headerbar button {
+    background-color: var(--ct-bg-surface);
+    border: 1px solid var(--ct-border);
+    border-radius: 6px;
+    color: var(--ct-text);
+}
+
+headerbar button:hover {
+    background-color: var(--ct-bg-hover);
+    border-color: var(--ct-border-focus);
+}
+
+/* Dialog content areas & boxes */
+dialog .dialog-vbox,
+dialog .dialog-action-area,
+dialog .dialog-action-box,
+messagedialog .dialog-vbox,
+messagedialog .dialog-action-area,
+messagedialog .dialog-action-box,
+dialog box,
+messagedialog box,
+.app-dialog box {
+    background-color: var(--ct-bg);
+    color: var(--ct-text);
+}
+
+dialog label,
+messagedialog label,
+.app-dialog label {
+    color: var(--ct-text);
+}
+
+/* Text entries in dialogs */
+entry {
+    background-color: var(--ct-bg);
+    color: var(--ct-text);
+    border: 1px solid var(--ct-border);
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+
+entry:focus {
+    border-color: var(--ct-border-focus);
+}
+
+/* Switches in Preferences Dialog */
+switch {
+    background-color: var(--ct-bg-elevated);
+    border: 1px solid var(--ct-border);
+    border-radius: 12px;
+}
+
+switch:checked {
+    background-color: var(--ct-accent);
+    border-color: #0052a3;
+}
+
+switch slider {
+    background-color: #ffffff;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* Shortcuts window */
+shortcutswindow,
+shortcutssection,
+shortcutsgroup,
+shortcutsshortcut {
+    background-color: var(--ct-bg);
+    color: var(--ct-text);
+}
+
+shortcutsshortcut label {
+    color: var(--ct-text);
+}
+
+shortcutsshortcut accelerator {
+    background-color: var(--ct-bg-elevated);
+    color: var(--ct-text);
+    border: 1px solid var(--ct-border);
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+
+/* ═══════════════════════════════════════════════
    GLOBAL CONTAINER
    ═══════════════════════════════════════════════ */
 
@@ -79,7 +197,82 @@
 
 
 /* ═══════════════════════════════════════════════
-   DROPDOWNS & COMBOBOXES (CURVY EDGES & CLEAN BORDERS)
+   BUTTONS (UNIVERSAL BASE & VARIANT STYLING)
+   ═══════════════════════════════════════════════ */
+
+button {
+    font-size: 11px;
+    min-height: 25px;
+    border-radius: 6px;
+    border: 1px solid var(--ct-border);
+    background-color: var(--ct-bg-surface);
+    color: var(--ct-text);
+    padding: 2px 8px;
+    box-shadow: none;
+    outline: none;
+    transition: all 120ms ease;
+}
+
+button:hover {
+    background-color: var(--ct-bg-hover);
+    border-color: var(--ct-border-focus);
+    color: var(--ct-text);
+}
+
+button:active {
+    background-color: var(--ct-accent-bg);
+    border-color: var(--ct-accent);
+    color: var(--ct-accent);
+}
+
+button:focus {
+    border-color: var(--ct-border-focus);
+    outline: none;
+}
+
+button:disabled,
+.toolbar-btn:disabled {
+    opacity: 0.45;
+    color: var(--ct-text-muted);
+    border-color: rgba(0, 0, 0, 0.08);
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+button:disabled image,
+.toolbar-btn:disabled image {
+    opacity: 0.45;
+    color: var(--ct-text-muted);
+}
+
+button.suggested-action {
+    background-color: var(--ct-accent);
+    color: #ffffff;
+    border: 1px solid #0052a3;
+    font-weight: 600;
+}
+
+button.suggested-action:hover {
+    background-color: var(--ct-accent-hover);
+    border-color: #004080;
+    color: #ffffff;
+}
+
+button.destructive-action {
+    background-color: var(--ct-danger);
+    color: #ffffff;
+    border: 1px solid #cc2920;
+    font-weight: 600;
+}
+
+button.destructive-action:hover {
+    background-color: var(--ct-danger-hover);
+    border-color: #b3241c;
+    color: #ffffff;
+}
+
+
+/* ═══════════════════════════════════════════════
+   DROPDOWNS & COMBOBOXES (SCROLLABLE & ALIGNED)
    ═══════════════════════════════════════════════ */
 
 dropdown.profile-dropdown,
@@ -101,8 +294,8 @@ dropdown.lang-dropdown > button,
 .lang-dropdown > button,
 dropdown > button {
     font-size: 11px;
-    min-height: 26px;
-    border-radius: 8px;
+    min-height: 25px;
+    border-radius: 6px;
     background-color: var(--ct-bg-surface);
     border: 1px solid var(--ct-border);
     color: var(--ct-text);
@@ -112,17 +305,52 @@ dropdown > button {
     transition: all 120ms ease;
 }
 
+dropdown.profile-dropdown > button,
+.profile-dropdown > button {
+    min-width: 100px;
+}
+
+dropdown.lang-dropdown > button,
+.lang-dropdown > button {
+    min-width: 120px;
+}
+
+dropdown > button:hover,
 dropdown.profile-dropdown > button:hover,
 dropdown.lang-dropdown > button:hover,
 .profile-dropdown > button:hover,
-.lang-dropdown > button:hover,
-dropdown > button:hover {
+.lang-dropdown > button:hover {
     background-color: var(--ct-bg-hover);
     border-color: var(--ct-border-focus);
     color: var(--ct-text);
 }
 
-/* Dropdown Popover Window & Lists */
+dropdown > button:focus,
+dropdown > button:active {
+    border-color: var(--ct-border-focus);
+    background-color: var(--ct-bg-hover);
+}
+
+/* Dropdown inner button content alignment */
+dropdown > button box,
+dropdown > button > box {
+    padding: 0 2px;
+}
+
+dropdown > button label,
+dropdown > button > label {
+    font-size: 11px;
+    color: var(--ct-text);
+}
+
+dropdown > button image,
+dropdown > button arrow {
+    color: var(--ct-text-dim);
+    min-width: 12px;
+    min-height: 12px;
+}
+
+/* Dropdown Popover Window & Lists (Scrollable & Clean Alignment) */
 dropdown popover,
 dropdown > popover {
     background: transparent;
@@ -133,47 +361,76 @@ dropdown popover contents,
 dropdown > popover > contents {
     background-color: var(--ct-bg);
     border: 1px solid var(--ct-border);
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.08);
     padding: 4px;
+    min-width: 140px;
+}
+
+dropdown popover scrolledwindow,
+dropdown > popover scrolledwindow,
+dropdown popover scrolledwindow > viewport,
+dropdown > popover scrolledwindow > viewport {
+    min-height: 36px;
+    min-width: 130px;
 }
 
 dropdown popover listview,
 dropdown > popover listview {
     background: transparent;
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 2px;
+}
+
+dropdown popover search,
+dropdown > popover search,
+dropdown popover entry,
+dropdown > popover entry {
+    margin: 2px 4px 6px 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--ct-border);
+    background-color: var(--ct-bg-surface);
+    font-size: 11px;
+    min-height: 24px;
 }
 
 dropdown popover row,
 dropdown > popover row {
     border-radius: 6px;
-    padding: 4px 8px;
+    padding: 5px 10px;
     margin: 1px 0;
     color: var(--ct-text);
+    min-height: 24px;
     transition: all 100ms ease;
+    border: 1px solid transparent;
 }
 
 dropdown popover row:hover,
+dropdown > popover row:hover {
+    background-color: var(--ct-bg-hover);
+    color: var(--ct-text);
+    border-color: var(--ct-border);
+}
+
 dropdown popover row:selected,
-dropdown > popover row:hover,
 dropdown > popover row:selected {
     background-color: var(--ct-accent-bg);
     color: var(--ct-accent);
-    font-weight: 500;
-    border-radius: 6px;
+    font-weight: 600;
+    border-color: var(--ct-border-focus);
 }
 
 
 /* ═══════════════════════════════════════════════
-   BUTTONS & MENUBUTTONS
+   TOOLBAR BUTTONS & MENUBUTTONS
    ═══════════════════════════════════════════════ */
 
 .toolbar-btn {
     padding: 2px 8px;
     font-size: 11px;
-    min-height: 26px;
-    border-radius: 8px;
+    min-height: 25px;
+    border-radius: 6px;
     border: 1px solid var(--ct-border);
     background-color: var(--ct-bg-surface);
     color: var(--ct-text);
@@ -185,6 +442,10 @@ dropdown > popover row:selected {
     background-color: var(--ct-bg-hover);
     border-color: var(--ct-border-focus);
     color: var(--ct-text);
+}
+
+.toolbar-btn-danger {
+    color: var(--ct-danger);
 }
 
 .toolbar-btn-danger:hover {
@@ -206,8 +467,8 @@ menubutton.toolbar-btn > button,
 menubutton > button {
     padding: 2px 8px;
     font-size: 11px;
-    min-height: 26px;
-    border-radius: 8px;
+    min-height: 25px;
+    border-radius: 6px;
     border: 1px solid var(--ct-border);
     background-color: var(--ct-bg-surface);
     color: var(--ct-text);
@@ -222,7 +483,6 @@ menubutton > button:hover {
     color: var(--ct-text);
 }
 
-
 .toolbar-btn image,
 menubutton image,
 .menu-icon {
@@ -231,44 +491,7 @@ menubutton image,
 
 
 /* ═══════════════════════════════════════════════
-   LINKED BUTTON GROUPS
-   ═══════════════════════════════════════════════ */
-
-.linked {
-    margin: 0;
-    padding: 0;
-}
-
-.linked button,
-.linked menubutton > button {
-    border-radius: 0;
-    margin: 0;
-    border-right-width: 0;
-}
-
-.linked button:first-child,
-.linked menubutton:first-child > button {
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
-}
-
-.linked button:last-child,
-.linked menubutton:last-child > button {
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-    border-right-width: 1px;
-}
-
-.linked button:only-child,
-.linked menubutton:only-child > button {
-    border-radius: 8px;
-    border-right-width: 1px;
-}
-
-
-
-/* ═══════════════════════════════════════════════
-   TAB BAR (SCROLLABLE & RESPONSIVE)
+   TAB BAR (CLEAN INTEGRATED PILLS)
    ═══════════════════════════════════════════════ */
 
 .tab-scroll-window {
@@ -284,12 +507,11 @@ menubutton image,
 
 .tab-pill-box {
     border: 1px solid var(--ct-border);
-    border-bottom: none;
     border-radius: 6px 6px 0 0;
     background-color: var(--ct-bg-surface);
     margin: 0 2px;
     transition: all 120ms ease;
-    padding: 0 2px;
+    padding: 0 3px;
 }
 
 .tab-pill-active {
@@ -297,60 +519,79 @@ menubutton image,
     border-color: var(--ct-border-focus);
 }
 
+button.tab-btn,
 .tab-btn {
-    padding: 3px 7px;
+    padding: 3px 8px;
     font-size: 11px;
     background: transparent;
+    background-color: transparent;
     border: none;
+    border-radius: 0;
     color: var(--ct-text-dim);
-    min-height: 26px;
+    min-height: 24px;
     transition: all 120ms ease;
     box-shadow: none;
+    outline: none;
 }
 
+button.tab-btn:hover,
 .tab-btn:hover {
     color: var(--ct-text);
     background: transparent;
+    background-color: transparent;
+    border: none;
 }
 
+button.tab-btn-active,
 .tab-btn-active {
     color: var(--ct-accent);
     font-weight: 600;
     background: transparent;
+    background-color: transparent;
+    border: none;
 }
 
+button.tab-close-btn,
 .tab-close-btn {
-    padding: 0 3px;
+    padding: 1px 4px;
     min-height: 16px;
     min-width: 16px;
     font-size: 10px;
-    border-radius: 4px;
+    border-radius: 3px;
     color: var(--ct-text-muted);
     background: transparent;
+    background-color: transparent;
     border: none;
     transition: all 100ms ease;
     box-shadow: none;
-    margin-right: 2px;
+    outline: none;
+    margin-right: 1px;
 }
 
+button.tab-close-btn:hover,
 .tab-close-btn:hover {
     background-color: var(--ct-danger-bg);
     color: var(--ct-danger);
+    border: none;
 }
 
+button.tab-add-btn,
 .tab-add-btn {
-    padding: 3px 8px;
+    padding: 2px 8px;
     margin: 0 2px;
-    font-size: 12px;
-    min-height: 26px;
+    font-size: 13px;
+    min-height: 24px;
     border-radius: 6px 6px 0 0;
     border: 1px dashed var(--ct-border);
-    border-bottom: none;
     background: transparent;
+    background-color: transparent;
     color: var(--ct-text-muted);
+    box-shadow: none;
+    outline: none;
     transition: all 120ms ease;
 }
 
+button.tab-add-btn:hover,
 .tab-add-btn:hover {
     color: var(--ct-accent);
     border-color: var(--ct-accent);
@@ -432,26 +673,27 @@ menubutton image,
 }
 
 .find-close-btn {
-    padding: 2px 5px;
+    padding: 2px 6px;
     font-size: 11px;
-    min-height: 20px;
-    min-width: 20px;
-    border-radius: 4px;
+    min-height: 22px;
+    min-width: 22px;
+    border-radius: 6px;
     background: transparent;
     color: var(--ct-text-muted);
-    border: none;
+    border: 1px solid transparent;
     transition: all 100ms ease;
 }
 
 .find-close-btn:hover {
     background-color: var(--ct-danger-bg);
+    border-color: var(--ct-danger);
     color: var(--ct-danger);
 }
 
 .find-case-toggle {
     font-size: 11px;
-    padding: 3px 6px;
-    border-radius: 4px;
+    padding: 3px 8px;
+    border-radius: 6px;
     border: 1px solid var(--ct-border);
     color: var(--ct-text-dim);
     transition: all 120ms ease;
@@ -551,41 +793,72 @@ menubutton image,
     border-color: var(--ct-accent);
 }
 
+spinbutton,
 .compact-spin {
     font-size: 11px;
     min-height: 25px;
     border-radius: 6px;
     border: 1px solid var(--ct-border);
     background-color: var(--ct-bg-surface);
-    padding: 0 3px;
+    padding: 0 2px;
     box-shadow: none;
+    outline: none;
 }
 
+spinbutton:focus-within,
+.compact-spin:focus-within {
+    border-color: var(--ct-border-focus);
+    background-color: var(--ct-bg);
+}
+
+spinbutton text,
 .compact-spin text {
     background: transparent;
+    background-color: transparent;
     border: none;
     box-shadow: none;
     color: var(--ct-text);
-    padding: 0 2px;
+    padding: 1px 4px;
+    font-size: 11px;
 }
 
+spinbutton > button,
+spinbutton button,
+.compact-spin > button,
 .compact-spin button {
     background: transparent;
+    background-color: transparent;
     border: none;
+    border-radius: 0;
     box-shadow: none;
-    min-height: 12px;
+    min-height: 20px;
+    min-width: 16px;
     padding: 0 2px;
     color: var(--ct-text-dim);
+    transition: all 100ms ease;
 }
 
+spinbutton > button:hover,
+spinbutton button:hover,
+.compact-spin > button:hover,
 .compact-spin button:hover {
     color: var(--ct-text);
     background-color: var(--ct-bg-hover);
+    border: none;
+}
+
+spinbutton > button:active,
+spinbutton button:active,
+.compact-spin > button:active,
+.compact-spin button:active {
+    color: var(--ct-accent);
+    background-color: var(--ct-accent-bg);
+    border: none;
 }
 
 
 /* ═══════════════════════════════════════════════
-   ARM & STOP ACTION BUTTONS
+   ARM & STOP ACTION BUTTONS (DISTINCT SOLID BORDERS)
    ═══════════════════════════════════════════════ */
 
 .action-row {
@@ -597,16 +870,24 @@ menubutton image,
     font-weight: bold;
     padding: 8px 14px;
     font-size: 13px;
-    border-radius: 7px;
+    border-radius: 8px;
     background-color: var(--ct-accent);
     color: #ffffff;
-    border: none;
+    border: 1px solid #0052a3;
     transition: all 150ms ease;
     letter-spacing: 0.4px;
+    box-shadow: 0 1px 2px rgba(0, 102, 204, 0.2);
 }
 
 .arm-button:hover {
     background-color: var(--ct-accent-hover);
+    border-color: #004080;
+    box-shadow: 0 2px 4px rgba(0, 102, 204, 0.3);
+}
+
+.arm-button:active {
+    background-color: #0052a3;
+    border-color: #003d7a;
 }
 
 .arm-button image {
@@ -617,16 +898,24 @@ menubutton image,
     font-weight: bold;
     padding: 8px 14px;
     font-size: 13px;
-    border-radius: 7px;
+    border-radius: 8px;
     background-color: var(--ct-danger);
     color: #ffffff;
-    border: none;
+    border: 1px solid #cc2920;
     transition: all 150ms ease;
     letter-spacing: 0.4px;
+    box-shadow: 0 1px 2px rgba(255, 59, 48, 0.2);
 }
 
 .stop-button:hover {
     background-color: var(--ct-danger-hover);
+    border-color: #b3241c;
+    box-shadow: 0 2px 4px rgba(255, 59, 48, 0.3);
+}
+
+.stop-button:active {
+    background-color: #cc2920;
+    border-color: #991b15;
 }
 
 .stop-button image {
@@ -637,16 +926,24 @@ menubutton image,
     font-weight: bold;
     padding: 8px 14px;
     font-size: 13px;
-    border-radius: 7px;
+    border-radius: 8px;
     background-color: var(--ct-warning);
     color: #ffffff;
-    border: none;
+    border: 1px solid #cc7700;
     transition: all 150ms ease;
     letter-spacing: 0.4px;
+    box-shadow: 0 1px 2px rgba(255, 149, 0, 0.2);
 }
 
 .pause-button:hover {
     background-color: #d97706;
+    border-color: #b45309;
+    box-shadow: 0 2px 4px rgba(255, 149, 0, 0.3);
+}
+
+.pause-button:active {
+    background-color: #b45309;
+    border-color: #92400e;
 }
 
 .pause-button image {
@@ -657,16 +954,24 @@ menubutton image,
     font-weight: bold;
     padding: 8px 14px;
     font-size: 13px;
-    border-radius: 7px;
+    border-radius: 8px;
     background-color: var(--ct-success);
     color: #ffffff;
-    border: none;
+    border: 1px solid #28a745;
     transition: all 150ms ease;
     letter-spacing: 0.4px;
+    box-shadow: 0 1px 2px rgba(52, 199, 89, 0.2);
 }
 
 .resume-button:hover {
     background-color: #059669;
+    border-color: #047857;
+    box-shadow: 0 2px 4px rgba(52, 199, 89, 0.3);
+}
+
+.resume-button:active {
+    background-color: #047857;
+    border-color: #065f46;
 }
 
 .resume-button image {
@@ -805,7 +1110,7 @@ popover > arrow {
 
 .popover-menu-item:hover {
     background-color: var(--ct-bg-hover);
-    border-color: rgba(0, 0, 0, 0.06);
+    border-color: var(--ct-border);
     border-radius: 8px;
     color: var(--ct-text);
 }
@@ -819,7 +1124,7 @@ popover > arrow {
 
 .popover-menu-item-accent:hover {
     background-color: var(--ct-accent);
-    border-color: var(--ct-accent);
+    border-color: #0052a3;
     border-radius: 8px;
     color: #ffffff;
 }
@@ -915,12 +1220,13 @@ popover > arrow {
     border-radius: 6px;
     background: transparent;
     color: var(--ct-text-muted);
-    border: none;
+    border: 1px solid transparent;
     transition: all 100ms ease;
 }
 
 .recent-delete-btn:hover {
     background-color: var(--ct-danger-bg);
+    border-color: var(--ct-danger);
     color: var(--ct-danger);
 }
 
@@ -1016,6 +1322,76 @@ popover > arrow {
 
 
 /* ═══════════════════════════════════════════════
+   SCROLLBARS (CLEAN & MODERN)
+   ═══════════════════════════════════════════════ */
+
+scrollbar {
+    background-color: transparent;
+    transition: all 200ms ease;
+}
+
+scrollbar trough {
+    background-color: transparent;
+    border: none;
+}
+
+scrollbar slider {
+    min-width: 6px;
+    min-height: 6px;
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.18);
+    border: 2px solid transparent;
+    transition: all 150ms ease;
+}
+
+scrollbar slider:hover {
+    background-color: rgba(0, 0, 0, 0.36);
+}
+
+scrollbar slider:active {
+    background-color: var(--ct-accent);
+}
+
+
+/* ═══════════════════════════════════════════════
+   STACKSWITCHER (PREFERENCES & MODAL TABS)
+   ═══════════════════════════════════════════════ */
+
+stackswitcher {
+    border-radius: 9px;
+    background-color: var(--ct-bg-surface);
+    border: 1px solid var(--ct-border);
+    padding: 3px;
+}
+
+stackswitcher > button {
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--ct-text-dim);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    min-height: 24px;
+    transition: all 120ms ease;
+}
+
+stackswitcher > button:hover {
+    background-color: var(--ct-bg-hover);
+    border-color: var(--ct-border);
+    color: var(--ct-text);
+}
+
+stackswitcher > button:checked {
+    background-color: var(--ct-bg);
+    color: var(--ct-accent);
+    border-color: var(--ct-border-focus);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+
+/* ═══════════════════════════════════════════════
    COUNTDOWN OVERLAY
    ═══════════════════════════════════════════════ */
 
@@ -1040,10 +1416,10 @@ popover > arrow {
 }
 
 .countdown-cancel-btn {
-    padding: 7px 24px;
+    padding: 8px 24px;
     font-weight: bold;
     font-size: 12px;
-    border-radius: 6px;
+    border-radius: 8px;
     border: 1px solid var(--ct-danger);
     background-color: var(--ct-danger-bg);
     color: var(--ct-danger);

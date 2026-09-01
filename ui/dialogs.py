@@ -32,6 +32,8 @@ class BackendErrorDialog(Gtk.MessageDialog):
             text="CodeWriter — Backend Unavailable",
             secondary_text=reason,
         )
+        self.add_css_class("app-dialog")
+        self.add_css_class("light-theme")
         self.add_button("Retry", Gtk.ResponseType.APPLY)
         self.add_button("Quit", Gtk.ResponseType.CLOSE)
         self.set_default_response(Gtk.ResponseType.APPLY)
@@ -52,6 +54,8 @@ class ProfileNameDialog(Gtk.Dialog):
             transient_for=parent,
             modal=True,
         )
+        self.add_css_class("app-dialog")
+        self.add_css_class("light-theme")
         self.add_button("Cancel", Gtk.ResponseType.CANCEL)
         self.add_button("Save", Gtk.ResponseType.OK)
         self.set_default_response(Gtk.ResponseType.OK)
@@ -90,6 +94,8 @@ class ConfirmReplaceDialog(Gtk.MessageDialog):
             text="Replace Editor Content?",
             secondary_text="The editor currently contains text. Replace it with the selected snippet?",
         )
+        self.add_css_class("app-dialog")
+        self.add_css_class("light-theme")
         self.add_button("Cancel", Gtk.ResponseType.CANCEL)
         self.add_button("Replace", Gtk.ResponseType.OK)
         self.set_default_response(Gtk.ResponseType.OK)
@@ -109,6 +115,8 @@ class ConfirmClearDialog(Gtk.MessageDialog):
             text="Clear Editor?",
             secondary_text="Are you sure you want to clear all editor contents?",
         )
+        self.add_css_class("app-dialog")
+        self.add_css_class("light-theme")
         self.add_button("Cancel", Gtk.ResponseType.CANCEL)
         self.add_button("Clear", Gtk.ResponseType.OK)
         self.set_default_response(Gtk.ResponseType.OK)
@@ -128,6 +136,8 @@ class ConfirmDeleteProfileDialog(Gtk.MessageDialog):
             text=f"Delete Profile '{profile_name}'?",
             secondary_text="This action cannot be undone.",
         )
+        self.add_css_class("app-dialog")
+        self.add_css_class("light-theme")
         self.add_button("Cancel", Gtk.ResponseType.CANCEL)
         self.add_button("Delete", Gtk.ResponseType.OK)
         self.set_default_response(Gtk.ResponseType.CANCEL)
@@ -153,6 +163,8 @@ class DryRunPreviewDialog(Gtk.Dialog):
             transient_for=parent,
             modal=True,
         )
+        self.add_css_class("app-dialog")
+        self.add_css_class("light-theme")
         self.set_default_size(520, 420)
         self.add_button("Close", Gtk.ResponseType.CANCEL)
         self.add_button("ARM & TYPE", Gtk.ResponseType.OK)
@@ -206,6 +218,10 @@ class DryRunPreviewDialog(Gtk.Dialog):
         content.append(preview_label)
 
         buffer = GtkSource.Buffer()
+        scheme_mgr = GtkSource.StyleSchemeManager.get_default()
+        light_scheme = scheme_mgr.get_scheme("classic") or scheme_mgr.get_scheme("Adwaita")
+        if light_scheme:
+            buffer.set_style_scheme(light_scheme)
         buffer.set_text(processed_text)
         if language_id and language_id != "plain":
             lm = GtkSource.LanguageManager.get_default()
@@ -245,6 +261,8 @@ class SimulationPlayerDialog(Gtk.Dialog):
             transient_for=parent,
             modal=True,
         )
+        self.add_css_class("app-dialog")
+        self.add_css_class("light-theme")
         self.set_default_size(620, 520)
         self.add_button("Close", Gtk.ResponseType.CANCEL)
         self.add_button("⚡ ARM & TYPE NOW", Gtk.ResponseType.OK)
@@ -294,6 +312,10 @@ class SimulationPlayerDialog(Gtk.Dialog):
 
         # ── 2. Animated Simulation Screen ──
         self.sim_buffer = GtkSource.Buffer()
+        scheme_mgr = GtkSource.StyleSchemeManager.get_default()
+        light_scheme = scheme_mgr.get_scheme("classic") or scheme_mgr.get_scheme("Adwaita")
+        if light_scheme:
+            self.sim_buffer.set_style_scheme(light_scheme)
         if language_id and language_id != "plain":
             lm = GtkSource.LanguageManager.get_default()
             lang = lm.get_language(language_id)
@@ -471,6 +493,8 @@ class PreferencesDialog(Gtk.Dialog):
             transient_for=parent,
             modal=True,
         )
+        self.add_css_class("app-dialog")
+        self.add_css_class("light-theme")
         self.set_default_size(540, 460)
         self.add_button("Cancel", Gtk.ResponseType.CANCEL)
         self.add_button("Save Preferences", Gtk.ResponseType.OK)
