@@ -4,12 +4,12 @@
 
 # CodeWriter ⚡
 
-### *Next-Generation Native Linux Keystroke Automation, Stealth Cadence & Code Beautification Utility*
+### Native Linux code editing, formatting, and controllable input automation
 
 [![Platform](https://img.shields.io/badge/Platform-Linux%20(Wayland%20%7C%20X11)-0066cc?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/ScaraMouche-Wanderer/CodeWriter)
 [![GUI](https://img.shields.io/badge/GUI-GTK4%20%2B%20GtkSourceView%205-0077ed?style=for-the-badge&logo=gnome&logoColor=white)](https://github.com/ScaraMouche-Wanderer/CodeWriter)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://github.com/ScaraMouche-Wanderer/CodeWriter)
-[![Tests](https://img.shields.io/badge/Tests-101%20Passed%20(100%25)-34c759?style=for-the-badge&logo=pytest&logoColor=white)](https://github.com/ScaraMouche-Wanderer/CodeWriter)
+[![Test suite](https://img.shields.io/badge/Tests-browse_suite-536b46?style=for-the-badge&logo=pytest&logoColor=white)](tests/)
 [![License](https://img.shields.io/badge/License-MIT-ff9500?style=for-the-badge)](LICENSE)
 
 <br/>
@@ -33,18 +33,17 @@
 
 ## 🎯 Why CodeWriter?
 
-> [!IMPORTANT]
-> ### 🛑 Clipboard & Paste Restrictions Blocking Your Workflow?
-> When working inside **locked remote desktops** *(Citrix, VMware Horizon, RDP)*, **VM web consoles** *(AWS Cloud9, Proxmox, vSphere, Guacamole)*, **online coding environments** *(LeetCode, HackerRank)*, or **proctored coding assessments**, standard clipboard paste (`Ctrl+V`) is frequently intercepted, blocked, or flagged.
-> 
-> ⚡ **The Hardware-Level Solution:**  
-> **CodeWriter** bypasses all software clipboard monitors by transmitting staged code payloads directly through the Linux kernel input subsystem (`/dev/uinput`) via `ydotool`. To the OS and target window, every character arrives as genuine hardware keystrokes from a physical keyboard.
+CodeWriter brings a source editor, reusable text transformations, typing preview, and Linux input automation into one GTK application. Stage a snippet, format it, preview the playback, and control delivery into a scratch editor or another application in your own workflow.
+
+The backend uses `ydotool` and Linux `/dev/uinput`. Delivery depends on desktop permissions, keyboard layout, and the focused window.
+
+**Review the engineering:** [Project brief](PROJECT_BRIEF.md) · [Typing engine](core/typing_engine.py) · [Text tools](core/code_tools.py) · [Tests](tests/)
 
 ---
 
 ## ⚡ Quick Start & Step-by-Step Guide
 
-Follow this simple workflow to stream code into any application in under **30 seconds**:
+Follow this simple workflow to stage, preview, and type a snippet into a target application:
 
 ```text
  ┌──────────────────────┐      Ctrl+Enter      ┌──────────────────────┐      3... 2... 1...     ┌────────────────────────┐
@@ -92,12 +91,12 @@ python3 app.py
 
 ## 🚀 Key Features
 
-### ⚡ Hardware-Level Keystroke Streaming
-- **Zero Clipboard Dependency**: Emulates genuine USB keyboard events through Linux `/dev/uinput` via `ydotool`.
-- **Universal Compatibility**: Works across all Wayland & X11 windows, browsers, Electron apps, terminals, and remote desktop clients.
+### ⚡ Linux Input Automation
+- **Zero Clipboard Dependency**: Uses Linux `/dev/uinput` via `ydotool` to generate input events.
+- **Desktop Integration**: Designed for Wayland and X11 workflows; verify permissions, layout, and delivery in the target application.
 - **Interactive Live Control**: Pause and resume typing on the fly (`Space`) or abort anytime (`Esc`).
 
-### 🎲 Stealth Humanizer & Natural Cadence
+### 🎲 Configurable Typing Cadence
 - **Human Jitter Cadence**: Dynamically varies delay ($\pm 25\%$) per stroke to simulate realistic human neuromuscular rhythm.
 - **Authentic Typo Simulation**: Occasionally mistypes QWERTY neighbor keys, pauses (80–180ms), hits backspace, and fixes the character.
 - **Cognitive Syntax Pauses**: Injects natural thinking pauses at newlines ($40-100\text{ms}$) and punctuation (`{`, `}`, `;`, `:`).
