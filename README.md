@@ -16,6 +16,7 @@
 
 <p align="center">
   <a href="#-why-codewriter"><strong>Why CodeWriter?</strong></a> •
+  <a href="#try-the-typing-preview"><strong>Try the Preview</strong></a> •
   <a href="#-quick-start--step-by-step-guide"><strong>Step-by-Step Guide</strong></a> •
   <a href="#-key-features"><strong>Key Features</strong></a> •
   <a href="#-code-tools--beautifiers"><strong>Code Tools</strong></a> •
@@ -38,6 +39,20 @@ CodeWriter brings a source editor, reusable text transformations, typing preview
 The backend uses `ydotool` and Linux `/dev/uinput`. Delivery depends on desktop permissions, keyboard layout, and the focused window.
 
 **Review the engineering:** [Project brief](PROJECT_BRIEF.md) · [Typing engine](core/typing_engine.py) · [Text tools](core/code_tools.py) · [Tests](tests/)
+
+## Try the typing preview
+
+On a Linux desktop with Python 3.10+, PyGObject, GTK4, and GtkSourceView 5:
+
+```bash
+git clone https://github.com/ScaraMouche-Wanderer/CodeWriter.git
+cd CodeWriter
+python3 app.py --preview
+```
+
+Select **Play Simulation** to watch a Python sample play back in the visualizer.
+You can pause, restart, and change the playback speed. This preview needs no
+installer, `ydotool` daemon, or input permissions, and sends no keystrokes.
 
 ---
 

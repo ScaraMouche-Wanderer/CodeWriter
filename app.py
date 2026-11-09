@@ -18,7 +18,8 @@ from gi.repository import Gdk, Gio, GLib, Gtk
 
 from backend.ydotool import YdotoolBackend
 from core.settings import SettingsStore
-from ui.dialogs import BackendErrorDialog
+from core.templates import STARTER_TEMPLATES
+from ui.dialogs import BackendErrorDialog, SimulationPlayerDialog
 from ui.main_window import CodeTyperWindow as CodeWriterWindow
 from ui.tray import CodeWriterTray
 
@@ -47,11 +48,19 @@ class CodeWriterApp(Gtk.Application):
             application_id="com.local.codewriter",
             flags=Gio.ApplicationFlags.NON_UNIQUE,
         )
-        self.backend = YdotoolBackend()
-        self.settings_store = SettingsStore()
+        self.add_main_option(
+            "preview", 0, GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
+            "Try the typing visualizer without sending keystrokes", None,
+        )
+        self.preview_only = False
         self.window = None
+        self.preview_dialog = None
         self.error_dialog = None
         self.tray = None
+
+    def do_handle_local_options(self, options: GLib.VariantDict) -> int:
+        self.preview_only = options.contains("preview")
+        return -1
 
     def do_startup(self) -> None:
         """Called when the application starts; load CSS resources, icon theme paths, and tray."""
@@ -62,7 +71,10 @@ class CodeWriterApp(Gtk.Application):
             settings.set_property("gtk-application-prefer-dark-theme", False)
         self._load_css()
         self._load_icons()
-        self._init_tray()
+        if not self.preview_only:
+            self.backend = YdotoolBackend()
+            self.settings_store = SettingsStore()
+            self._init_tray()
 
     def do_shutdown(self) -> None:
         """Clean up system tray and background resources on shutdown."""
@@ -125,13 +137,31 @@ class CodeWriterApp(Gtk.Application):
 
 
     def do_activate(self) -> None:
-        """Called on application activation; validates backend availability before showing window."""
+        """Open the standalone preview or check the backend for the full app."""
+        if self.preview_only:
+            self._show_playback_preview()
+            return
+
         is_ok, reason = self.backend.is_available()
         if not is_ok:
             self._show_error_dialog(reason)
             return
 
         self._show_main_window()
+
+    def _show_playback_preview(self) -> None:
+        if self.preview_dialog is None:
+            sample = STARTER_TEMPLATES[0]
+            self.preview_dialog = SimulationPlayerDialog(
+                parent=None,
+                text=sample.content,
+                delay_ms=20,
+                language_id=sample.language_id,
+                allow_typing=False,
+            )
+            self.preview_dialog.set_application(self)
+            self.preview_dialog.connect("response", lambda dialog, _response: dialog.close())
+        self.preview_dialog.present()
 
     def _show_main_window(self) -> None:
         """Instantiate and present the main CodeWriter window with saved settings."""
@@ -206,8 +236,6 @@ class CodeWriterApp(Gtk.Application):
 
 
 def main() -> int:
-    GLib.set_prgname("com.local.codewriter")
-    GLib.set_application_name("CodeWriter")
     app = CodeWriterApp()
     return app.run(sys.argv)
 

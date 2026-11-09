@@ -255,6 +255,8 @@ class SimulationPlayerDialog(Gtk.Dialog):
         language_id: str = "plain",
         enable_humanize: bool = False,
         typo_rate_pct: float = 0.0,
+        *,
+        allow_typing: bool = True,
     ) -> None:
         super().__init__(
             title="Live Typing Simulation Player",
@@ -265,8 +267,11 @@ class SimulationPlayerDialog(Gtk.Dialog):
         self.add_css_class("light-theme")
         self.set_default_size(620, 520)
         self.add_button("Close", Gtk.ResponseType.CANCEL)
-        self.add_button("⚡ ARM & TYPE NOW", Gtk.ResponseType.OK)
-        self.set_default_response(Gtk.ResponseType.OK)
+        if allow_typing:
+            self.add_button("⚡ ARM & TYPE NOW", Gtk.ResponseType.OK)
+            self.set_default_response(Gtk.ResponseType.OK)
+        else:
+            self.set_default_response(Gtk.ResponseType.CANCEL)
 
         self._full_text = text
         self._delay_ms = max(1, delay_ms)
@@ -431,18 +436,19 @@ class SimulationPlayerDialog(Gtk.Dialog):
         char = self._full_text[self._char_index]
         prev_char = self._full_text[self._char_index - 1] if self._char_index > 0 else ""
 
-        delay_sec = calculate_char_delay(
+        delay_ms = calculate_char_delay(
             char=char,
             prev_char=prev_char,
             base_delay_ms=self._delay_ms,
             enable_humanize=self._enable_humanize,
         )
 
-        effective_delay_ms = max(1, int((delay_sec * 1000) / self._speed_multiplier))
+        effective_delay_ms = max(1, int(delay_ms / self._speed_multiplier))
         from gi.repository import GLib
         self._timer_id = GLib.timeout_add(effective_delay_ms, self._on_step)
 
     def _on_step(self) -> bool:
+        self._timer_id = None
         if not self._is_playing:
             return False
 
@@ -462,7 +468,7 @@ class SimulationPlayerDialog(Gtk.Dialog):
             elapsed = time.monotonic() - self._start_time
             if elapsed > 0:
                 mins = elapsed / 60.0
-                live_wpm = int((self._char_index / 5.0) / mins * self._speed_multiplier)
+                live_wpm = int((self._char_index / 5.0) / mins)
                 self.wpm_label.set_text(f"{live_wpm} WPM")
 
             self._schedule_next_char()
